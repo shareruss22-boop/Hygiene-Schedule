@@ -7,102 +7,133 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --teal: #2e8b8f; --teal-light: #4aacb0; --teal-pale: #e6f6f7;
-    --coral: #e05c4b; --coral-pale: #fdecea;
-    --gold: #d4a017; --gold-pale: #fdf6e3;
-    --navy: #1a2744; --cream: #f9f7f3; --sand: #ede8df;
-    --gray: #9aa0b0; --white: #fff;
+    --teal:#2e8b8f;--teal-light:#4aacb0;--teal-pale:#e6f6f7;
+    --coral:#e05c4b;--coral-pale:#fdecea;
+    --gold:#d4a017;--gold-pale:#fdf6e3;
+    --navy:#1a2744;--cream:#f9f7f3;--sand:#ede8df;
+    --gray:#9aa0b0;--white:#fff;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Nunito', sans-serif; background: var(--cream); color: var(--navy); padding: 1.25rem; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--navy);padding:1.25rem;}
+  h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--navy);}
+  h1 span{color:var(--teal);}
+  .subtitle{font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;margin-bottom:1.25rem;}
+  .tabs{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
+  .tab{padding:6px 16px;border-radius:8px;border:1px solid var(--sand);background:var(--white);color:var(--gray);font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;}
+  .tab:hover{border-color:var(--teal);color:var(--teal);}
+  .tab.active{background:var(--navy);border-color:var(--navy);color:white;}
+  .panel{display:none;}.panel.active{display:block;}
 
-  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--navy); }
-  h1 span { color: var(--teal); }
-  .subtitle { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; margin-bottom: 1.25rem; }
+  .month-nav{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+  .month-nav h2{font-family:'Playfair Display',serif;font-size:1.3rem;flex:1;}
+  .month-nav button{border:1px solid var(--sand);background:var(--white);border-radius:8px;padding:5px 12px;cursor:pointer;color:var(--navy);font-size:13px;font-family:'Nunito',sans-serif;}
+  .month-nav button:hover{background:var(--sand);}
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 1.2rem; flex-wrap: wrap; }
-  .tab { padding: 6px 16px; border-radius: 8px; border: 1px solid var(--sand); background: var(--white); color: var(--gray); font-size: 13px; font-family: 'Nunito', sans-serif; cursor: pointer; font-weight: 600; transition: all 0.15s; }
-  .tab:hover { border-color: var(--teal); color: var(--teal); }
-  .tab.active { background: var(--navy); border-color: var(--navy); color: white; }
-  .panel { display: none; }
-  .panel.active { display: block; }
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:1rem;font-size:12px;align-items:center;}
+  .leg{display:flex;align-items:center;gap:5px;color:var(--gray);}
+  .leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
 
-  /* MONTH NAV */
-  .month-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-  .month-nav h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; flex: 1; }
-  .month-nav button { border: 1px solid var(--sand); background: var(--white); border-radius: 8px; padding: 5px 12px; cursor: pointer; color: var(--navy); font-size: 13px; font-family: 'Nunito', sans-serif; }
-  .month-nav button:hover { background: var(--sand); }
+  .cal-wrap{background:var(--white);border-radius:12px;border:1px solid var(--sand);overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06);}
+  .cal-grid{display:grid;grid-template-columns:repeat(5,1fr);}
+  .cal-head{background:var(--navy);color:white;text-align:center;padding:8px 4px;font-size:0.82rem;font-weight:600;border-right:1px solid rgba(255,255,255,0.08);}
+  .cal-head:last-child{border-right:none;}
+  .cal-cell{border-right:1px solid var(--sand);border-bottom:1px solid var(--sand);padding:5px;min-height:120px;cursor:pointer;transition:background 0.12s;}
+  .cal-cell:nth-child(5n){border-right:none;}
+  .cal-cell:hover{background:#f4f8f9;}
+  .cal-cell.friday{background:#f9fef9;}.cal-cell.friday:hover{background:#f0faf0;}
+  .cal-cell.drout{background:#f5f5f5;cursor:default;pointer-events:none;opacity:0.6;}
+  .cal-cell.empty{background:#fafafa;cursor:default;pointer-events:none;}
+  .date-lbl{font-size:11px;color:var(--gray);font-weight:700;display:flex;justify-content:space-between;margin-bottom:3px;}
+  .w-count{font-size:10px;background:var(--teal-pale);color:var(--teal);border-radius:8px;padding:0 5px;font-weight:700;}
+  .drout-lbl{font-size:10px;background:#e0e0e0;color:#666;border-radius:3px;padding:1px 5px;}
+  .chip{display:block;font-size:11px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+  .c-work{background:var(--teal-pale);color:#1a6568;}
+  .c-half{background:#dff2f3;color:#256f73;border:1px dashed var(--teal-light);}
+  .c-off{background:var(--coral-pale);color:#a03020;text-decoration:line-through;}
+  .c-helen{background:var(--gold-pale);color:#9a7010;}
 
-  /* LEGEND */
-  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 1rem; font-size: 12px; align-items: center; }
-  .leg { display: flex; align-items: center; gap: 5px; color: var(--gray); }
-  .leg-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
-
-  /* CALENDAR */
-  .cal-wrap { background: var(--white); border-radius: 12px; border: 1px solid var(--sand); overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
-  .cal-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
-  .cal-head { background: var(--navy); color: white; text-align: center; padding: 8px 4px; font-size: 0.82rem; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.08); }
-  .cal-head:last-child { border-right: none; }
-  .cal-cell { border-right: 1px solid var(--sand); border-bottom: 1px solid var(--sand); padding: 5px; min-height: 120px; cursor: pointer; transition: background 0.12s; }
-  .cal-cell:nth-child(5n) { border-right: none; }
-  .cal-cell:hover { background: #f4f8f9; }
-  .cal-cell.friday { background: #f9fef9; }
-  .cal-cell.friday:hover { background: #f0faf0; }
-  .cal-cell.drout { background: #f5f5f5; cursor: default; pointer-events: none; opacity: 0.6; }
-  .cal-cell.empty { background: #fafafa; cursor: default; pointer-events: none; }
-  .date-lbl { font-size: 11px; color: var(--gray); font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 3px; }
-  .w-count { font-size: 10px; background: var(--teal-pale); color: var(--teal); border-radius: 8px; padding: 0 5px; font-weight: 700; }
-  .drout-lbl { font-size: 10px; background: #e0e0e0; color: #666; border-radius: 3px; padding: 1px 5px; }
-  .chip { display: block; font-size: 11px; padding: 2px 5px; border-radius: 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-  .c-work { background: var(--teal-pale); color: #1a6568; }
-  .c-half { background: #dff2f3; color: #256f73; border: 1px dashed var(--teal-light); }
-  .c-off  { background: var(--coral-pale); color: #a03020; text-decoration: line-through; }
-  .c-helen { background: var(--gold-pale); color: #9a7010; }
-
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--white); border-radius: 14px; border: 1px solid var(--sand); padding: 1.25rem; width: 340px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 1rem; }
-  .modal-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--sand); font-size: 13px; }
-  .modal-row:last-of-type { border-bottom: none; }
-  .m-name { font-weight: 700; }
-  .s-btn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--sand); cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 600; background: var(--cream); color: var(--gray); transition: all 0.12s; }
-  .s-btn.sw { background: var(--teal-pale); color: #1a6568; border-color: var(--teal); }
-  .s-btn.sh { background: #dff2f3; color: #256f73; border-color: var(--teal-light); font-style: italic; }
-  .s-btn.so { background: var(--coral-pale); color: #a03020; border-color: var(--coral); }
-  .s-btn.sn { background: var(--sand); color: var(--gray); }
-  .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
-  .modal-btns button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--sand); cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600; }
-  .btn-save { background: var(--navy); color: white; border-color: var(--navy); }
-  .btn-cancel { background: var(--white); color: var(--navy); }
+  /* PAY PERIOD BANNER */
+  .pp-banner{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
+  .pp-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--sand);background:var(--white);color:var(--gray);cursor:pointer;transition:all 0.15s;}
+  .pp-pill:hover{border-color:var(--teal);color:var(--teal);}
+  .pp-pill.active{background:var(--teal);border-color:var(--teal);color:white;}
+  .pp-pill.all{background:var(--navy);border-color:var(--navy);color:white;}
 
   /* HOURS TABLE */
-  .tbl { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--sand); box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
-  .tbl th { background: var(--navy); color: white; padding: 9px 12px; text-align: left; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-  .tbl th:not(:first-child) { text-align: center; }
-  .tbl td { padding: 8px 12px; border-bottom: 1px solid var(--sand); font-size: 0.83rem; }
-  .tbl td:not(:first-child) { text-align: center; }
-  .tbl tr:last-child td { border-bottom: none; }
-  .tbl tr:nth-child(even) td { background: #fdfcfa; }
-  .t-name { font-weight: 700; }
-  .t-hrs { color: var(--teal); font-weight: 700; }
-  .t-off { color: var(--coral); font-weight: 700; }
-  .bar-bg { width: 70px; background: var(--sand); border-radius: 4px; height: 7px; display: inline-block; vertical-align: middle; overflow: hidden; }
-  .bar-fg { height: 100%; background: var(--teal); border-radius: 4px; }
+  .tbl-wrap{overflow-x:auto;}
+  .tbl{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--sand);box-shadow:0 2px 16px rgba(0,0,0,0.06);min-width:680px;}
+  .tbl th{background:var(--navy);color:white;padding:9px 10px;text-align:left;font-size:0.76rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+  .tbl th:not(:first-child){text-align:center;}
+  .tbl th.bw-col{background:#243560;}
+  .tbl th.mo-col{background:#1a2744;}
+  .tbl th.sep{background:#0f1e38;width:8px;padding:0;}
+  .tbl td{padding:8px 10px;border-bottom:1px solid var(--sand);font-size:0.82rem;}
+  .tbl td:not(:first-child){text-align:center;}
+  .tbl tr:last-child td{border-bottom:none;}
+  .tbl tr:nth-child(even) td{background:#fdfcfa;}
+  .tbl td.sep{background:var(--sand);padding:0;width:8px;}
+  .t-name{font-weight:700;}
+  .t-hrs{color:var(--teal);font-weight:700;}
+  .t-off{color:var(--coral);font-weight:700;}
+  .bar-bg{width:60px;background:var(--sand);border-radius:4px;height:7px;display:inline-block;vertical-align:middle;overflow:hidden;}
+  .bar-fg{height:100%;background:var(--teal);border-radius:4px;}
+  .period-label{font-size:11px;color:var(--gray);font-weight:400;}
 
-  /* ROTATION INFO */
-  .rot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
-  .rot-card { background: var(--white); border-radius: 10px; border: 1px solid var(--sand); padding: 12px 14px; }
-  .rot-day { font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 4px; }
-  .rot-detail { font-size: 0.78rem; color: var(--gray); line-height: 1.6; }
-  .rot-num { font-size: 1.4rem; font-weight: 700; color: var(--teal); }
-  .info-box { background: var(--gold-pale); border-left: 4px solid var(--gold); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: #7a5c10; line-height: 1.7; margin-bottom: 1rem; }
+  /* section headers in table */
+  .tbl th.section-header{text-align:center;font-size:0.7rem;letter-spacing:0.06em;padding:6px 10px;}
 
-  @media(max-width:600px) {
-    body { padding: 0.75rem; }
-    .cal-cell { min-height: 90px; padding: 3px; }
-    .chip { font-size: 10px; }
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--white);border-radius:14px;border:1px solid var(--sand);padding:1.25rem;width:340px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);}
+  .modal-box h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;}
+  .modal-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sand);font-size:13px;}
+  .modal-row:last-of-type{border-bottom:none;}
+  .m-name{font-weight:700;}
+  .s-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--sand);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:600;background:var(--cream);color:var(--gray);}
+  .s-btn.sw{background:var(--teal-pale);color:#1a6568;border-color:var(--teal);}
+  .s-btn.sh{background:#dff2f3;color:#256f73;border-color:var(--teal-light);font-style:italic;}
+  .s-btn.so{background:var(--coral-pale);color:#a03020;border-color:var(--coral);}
+  .s-btn.sn{background:var(--sand);color:var(--gray);}
+  .modal-btns{display:flex;gap:8px;margin-top:1rem;}
+  .modal-btns button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--sand);cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;}
+  .btn-save{background:var(--navy);color:white;border-color:var(--navy);}
+  .btn-cancel{background:var(--white);color:var(--navy);}
+
+  /* ROT */
+  .rot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem;}
+  .rot-card{background:var(--white);border-radius:10px;border:1px solid var(--sand);padding:12px 14px;}
+  .rot-day{font-weight:700;font-size:0.88rem;color:var(--navy);margin-bottom:4px;}
+  .rot-detail{font-size:0.78rem;color:var(--gray);line-height:1.6;}
+  .rot-num{font-size:1.4rem;font-weight:700;color:var(--teal);}
+  .info-box{background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:#7a5c10;line-height:1.7;margin-bottom:1rem;}
+
+  .print-btn{padding:6px 16px;border-radius:8px;border:1px solid var(--sand);background:var(--white);color:var(--gray);font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;margin-left:auto;}
+  .print-btn:hover{border-color:var(--teal);color:var(--teal);}
+
+  @media print{
+    body{background:#fff;padding:0.5rem;color:#000;}
+    .tabs,.print-btn,.month-nav button,.pp-banner,.modal-overlay{display:none!important;}
+    .panel{display:block!important;}
+    #panel-hrs,#panel-rot{margin-top:1.5rem;page-break-before:always;}
+    h1{font-size:1.4rem;}
+    .subtitle{margin-bottom:0.5rem;}
+    .cal-cell{min-height:90px;cursor:default;}
+    .cal-cell:hover{background:inherit;}
+    .cal-wrap{box-shadow:none;border:1px solid #ccc;}
+    .tbl{box-shadow:none;min-width:unset!important;}
+    .tbl-wrap{overflow:visible;}
+    .bar-bg,.bar-fg{display:none;}
+    .month-nav h2{font-size:1.1rem;}
+    .print-only-title{display:block!important;}
+  }
+
+  .print-only-title{display:none;}
+
+  @media(max-width:600px){
+    body{padding:0.75rem;}
+    .cal-cell{min-height:90px;padding:3px;}
+    .chip{font-size:10px;}
   }
 </style>
 </head>
@@ -115,6 +146,7 @@
   <button class="tab active" onclick="switchTab('cal',this)">📅 Calendar</button>
   <button class="tab" onclick="switchTab('hrs',this)">📊 Hours tally</button>
   <button class="tab" onclick="switchTab('rot',this)">🔄 Rotation info</button>
+  <button class="print-btn" onclick="printSchedule()">🖨️ Print</button>
 </div>
 
 <!-- CALENDAR -->
@@ -141,7 +173,7 @@
     </div>
     <div class="cal-grid" id="cal-body"></div>
   </div>
-  <p style="font-size:11px;color:var(--gray);margin-top:6px;">Click any day to edit. Changes auto-save in your browser.</p>
+  <p style="font-size:11px;color:var(--gray);margin-top:6px;">Click any day to edit. Changes save in your browser.</p>
 </div>
 
 <!-- HOURS -->
@@ -151,17 +183,23 @@
     <h2 id="hrs-title"></h2>
     <button onclick="changeMonth(1)">&#8594;</button>
   </div>
-  <table class="tbl">
-    <thead><tr><th>Name</th><th>Type</th><th>Sched days</th><th>Days off</th><th>Days worked</th><th>Est. hours</th><th>Progress</th></tr></thead>
-    <tbody id="hrs-body"></tbody>
-  </table>
-  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 4 hrs</p>
+
+  <!-- Pay period selector -->
+  <div class="pp-banner" id="pp-banner"></div>
+
+  <div class="tbl-wrap">
+    <table class="tbl" id="hrs-table">
+      <thead id="hrs-thead"></thead>
+      <tbody id="hrs-body"></tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 4 hrs &nbsp;·&nbsp; Pay periods start Jun 6, then every 2 weeks.</p>
 </div>
 
-<!-- ROTATION INFO -->
+<!-- ROTATION -->
 <div class="panel" id="panel-rot">
   <div class="info-box">
-    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot. Part-timers (Lisa, Amber, Laurie) share the other slot — but only on Tuesday when 2 are off. Mon/Wed/Thu have 1 off total, Tuesday has 2 off. Fridays have no rotation. Doctor-out days pause the queue.
+    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot every day Mon–Thu. On Tuesdays, part-timers (Lisa, Amber, Laurie) also rotate one off slot — making Tuesdays 2 off total. Fridays have no rotation. Doctor-out days pause the queue.
   </div>
   <div class="rot-grid">
     <div class="rot-card"><div class="rot-day">Monday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
@@ -170,13 +208,15 @@
     <div class="rot-card"><div class="rot-day">Thursday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
     <div class="rot-card"><div class="rot-day">Friday</div><div class="rot-num">0</div><div class="rot-detail">off — all 5 Friday<br>team members work</div></div>
   </div>
-  <table class="tbl">
-    <thead><tr><th>Name</th><th>Working days</th><th>Half days</th><th>Friday team</th><th>Rotation group</th></tr></thead>
+  <table class="tbl" style="min-width:unset;">
+    <thead><tr>
+      <th>Name</th><th>Working days</th><th>Half days</th><th>Friday team</th><th>Rotation group</th>
+    </tr></thead>
     <tbody id="rot-body"></tbody>
   </table>
 </div>
 
-<!-- EDIT MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
     <h3 id="modal-title">Edit day</h3>
@@ -189,125 +229,120 @@
 </div>
 
 <script>
-const HYGS = [
-  { name:'Lisa',     days:[0,1,2],     halfDays:[],    noRot:false, friday:false, type:'Part-time' },
-  { name:'Tara',     days:[0,1,2,3],   halfDays:[],    noRot:false, friday:false, type:'Full-time' },
-  { name:'Liz',      days:[0,1,2,3,4], halfDays:[2,4], noRot:false, friday:true,  type:'Full-time' },
-  { name:'Amber',    days:[0,1,2],     halfDays:[],    noRot:false, friday:false, type:'Part-time' },
-  { name:'Carrie',   days:[0,1,2,3,4], halfDays:[2,4], noRot:false, friday:true,  type:'Full-time' },
-  { name:'Susan',    days:[0,1,2,3,4], halfDays:[4],   noRot:false, friday:true,  type:'Full-time' },
-  { name:'Michelle', days:[0,1,2,3,4], halfDays:[4],   noRot:false, friday:true,  type:'Full-time' },
-  { name:'Laurie',   days:[1,2,3,4],   halfDays:[4],   noRot:false, friday:true,  type:'Part-time' },
-  { name:'Helen',    days:[3],         halfDays:[],    noRot:true,  friday:false, type:'Fixed (TH)' },
+const HYGS=[
+  {name:'Lisa',    days:[0,1,2],    halfDays:[],   noRot:false,friday:false,type:'Part-time'},
+  {name:'Tara',    days:[0,1,2,3],  halfDays:[],   noRot:false,friday:false,type:'Full-time'},
+  {name:'Liz',     days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:true, type:'Full-time'},
+  {name:'Amber',   days:[0,1,2],    halfDays:[],   noRot:false,friday:false,type:'Part-time'},
+  {name:'Carrie',  days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:true, type:'Full-time'},
+  {name:'Susan',   days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:true, type:'Full-time'},
+  {name:'Michelle',days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:true, type:'Full-time'},
+  {name:'Laurie',  days:[1,2,3,4],  halfDays:[4],  noRot:false,friday:true, type:'Part-time'},
+  {name:'Helen',   days:[3],        halfDays:[],   noRot:true, friday:false,type:'Fixed (TH)'},
 ];
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DNAMES  = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
-const DSHORT  = ['Mon','Tue','Wed','Thu','Fri'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DNAMES=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const DSHORT=['Mon','Tue','Wed','Thu','Fri'];
 
-// Off slots per day of week: 0=Mon,1=Tue,2=Wed,3=Thu,4=Fri
-// Mon=1(FT only), Tue=2(1FT+1PT), Wed=1(FT only), Thu=1(FT only), Fri=0
-const OFF_SLOTS = [
-  { ft:1, pt:0 }, // Mon
-  { ft:1, pt:1 }, // Tue
-  { ft:1, pt:0 }, // Wed
-  { ft:1, pt:0 }, // Thu
-  { ft:0, pt:0 }, // Fri
-];
+// Pay period anchor: June 6, 2026. Every 14 days after that.
+const PP_ANCHOR=new Date(2026,5,6); // Jun 6 2026
 
-const FT_QUEUE_KEY = 'hyg_ftq';
-const PT_QUEUE_KEY = 'hyg_ptq';
-const FT_NAMES = ['Tara','Liz','Carrie','Susan','Michelle'];
-const PT_NAMES = ['Lisa','Amber','Laurie'];
+function getPayPeriodIndex(date){
+  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  const diff=Math.floor((d-PP_ANCHOR)/86400000);
+  if(diff<0) return -1; // before first period = period 0 (partial)
+  return Math.floor(diff/14)+1;
+}
 
-let curYear=2026, curMonth=5;
+function getPayPeriodLabel(idx){
+  if(idx===0) return 'Before Jun 6';
+  const start=new Date(PP_ANCHOR); start.setDate(start.getDate()+(idx-1)*14);
+  const end=new Date(start); end.setDate(end.getDate()+13);
+  const fmt=d=>`${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+// Off slots per dow: {ft, pt}
+const OFF_SLOTS=[{ft:1,pt:0},{ft:1,pt:1},{ft:1,pt:0},{ft:1,pt:0},{ft:0,pt:0}];
+const FT_NAMES=['Tara','Liz','Carrie','Susan','Michelle'];
+const PT_NAMES=['Lisa','Amber','Laurie'];
+
+let curYear=2026,curMonth=5;
 let schedData={};
-let editKey=null, editTmp={};
+let editKey=null,editTmp={};
+let activePP='all'; // 'all' or period index number
 
-function lsKey(y,m){ return `hygSched_${y}_${m}`; }
+function lsKey(y,m){return `hygSched_${y}_${m}`;}
+function ftqKey(){return 'hyg_ftq2';}
+function ptqKey(){return 'hyg_ptq2';}
 
-function loadFTQueue(){ try{ const s=localStorage.getItem(FT_QUEUE_KEY); return s?JSON.parse(s):[...FT_NAMES]; }catch(e){ return [...FT_NAMES]; } }
-function saveFTQueue(q){ try{ localStorage.setItem(FT_QUEUE_KEY,JSON.stringify(q)); }catch(e){} }
-function loadPTQueue(){ try{ const s=localStorage.getItem(PT_QUEUE_KEY); return s?JSON.parse(s):[...PT_NAMES]; }catch(e){ return [...PT_NAMES]; } }
-function savePTQueue(q){ try{ localStorage.setItem(PT_QUEUE_KEY,JSON.stringify(q)); }catch(e){} }
+function loadQ(k,def){try{const s=localStorage.getItem(k);return s?JSON.parse(s):[...def];}catch(e){return[...def];}}
+function saveQ(k,q){try{localStorage.setItem(k,JSON.stringify(q));}catch(e){}}
 
 function loadMonth(y,m){
-  try{ const s=localStorage.getItem(lsKey(y,m)); if(s){ schedData=JSON.parse(s); return; } }catch(e){}
+  try{const s=localStorage.getItem(lsKey(y,m));if(s){schedData=JSON.parse(s);return;}}catch(e){}
   schedData={};
   buildDefault(y,m);
 }
-
-function saveMonth(y,m){
-  try{ localStorage.setItem(lsKey(y,m),JSON.stringify(schedData)); }catch(e){}
-}
+function saveMonth(y,m){try{localStorage.setItem(lsKey(y,m),JSON.stringify(schedData));}catch(e){}}
 
 function getWeeks(y,m){
   const first=new Date(y,m,1);
-  let startDow=first.getDay(); if(startDow===0)startDow=7;
-  const firstMon=new Date(y,m,1-(startDow-1));
-  const weeks=[];
-  let cur=new Date(firstMon);
+  let sd=first.getDay();if(sd===0)sd=7;
+  const fm=new Date(y,m,1-(sd-1));
+  const weeks=[];let cur=new Date(fm);
   while(true){
-    const week=[];
-    let any=false;
-    for(let d=0;d<5;d++){
-      const dt=new Date(cur); dt.setDate(cur.getDate()+d);
-      if(dt.getMonth()===m){ week.push(dt.getDate()); any=true; }
-      else week.push(null);
-    }
-    if(!any) break;
-    weeks.push(week);
+    const wk=[];let any=false;
+    for(let d=0;d<5;d++){const dt=new Date(cur);dt.setDate(cur.getDate()+d);if(dt.getMonth()===m){wk.push(dt.getDate());any=true;}else wk.push(null);}
+    if(!any)break;
+    weeks.push(wk);
     cur.setDate(cur.getDate()+7);
-    if(cur.getMonth()>m&&cur.getFullYear()>=y) break;
+    if(cur.getMonth()>m&&cur.getFullYear()>=y)break;
   }
   return weeks;
 }
 
-function dayKey(y,m,date){ return `${y}-${m}-${date}`; }
+function dayKey(y,m,date){return `${y}-${m}-${date}`;}
 
 function buildDefault(y,m){
   const drOut=(y===2026&&m===5)?new Set([15,25,29]):new Set();
-  const ftQ=loadFTQueue();
-  const ptQ=loadPTQueue();
+  const ftQ=loadQ(ftqKey(),FT_NAMES);
+  const ptQ=loadQ(ptqKey(),PT_NAMES);
   const weeks=getWeeks(y,m);
-
   weeks.forEach(week=>{
     week.forEach((date,dow)=>{
-      if(!date) return;
+      if(!date)return;
       const key=dayKey(y,m,date);
       const isDrOut=drOut.has(date);
       const assign={};
       const slots=OFF_SLOTS[dow];
-      let offFT=[], offPT=[];
-
+      let offFT=[],offPT=[];
       if(!isDrOut){
-        // Pick FT off
         for(let i=0;i<ftQ.length&&offFT.length<slots.ft;i++){
           const h=HYGS.find(x=>x.name===ftQ[i]);
-          if(h&&h.days.includes(dow)){ offFT.push(ftQ[i]); }
+          if(h&&h.days.includes(dow)){offFT.push(ftQ[i]);}
         }
-        offFT.forEach(n=>{ ftQ.push(ftQ.splice(ftQ.indexOf(n),1)[0]); });
-        // Pick PT off
+        offFT.forEach(n=>{ftQ.push(ftQ.splice(ftQ.indexOf(n),1)[0]);});
         for(let i=0;i<ptQ.length&&offPT.length<slots.pt;i++){
           const h=HYGS.find(x=>x.name===ptQ[i]);
-          if(h&&h.days.includes(dow)){ offPT.push(ptQ[i]); }
+          if(h&&h.days.includes(dow)){offPT.push(ptQ[i]);}
         }
-        offPT.forEach(n=>{ ptQ.push(ptQ.splice(ptQ.indexOf(n),1)[0]); });
+        offPT.forEach(n=>{ptQ.push(ptQ.splice(ptQ.indexOf(n),1)[0]);});
       }
-
       HYGS.forEach(h=>{
-        if(!h.days.includes(dow)){ assign[h.name]='nowork'; return; }
-        if(isDrOut){ assign[h.name]='drout'; return; }
-        if(h.noRot){ assign[h.name]='helen'; return; }
-        if(offFT.includes(h.name)||offPT.includes(h.name)){ assign[h.name]='off'; return; }
-        if(h.halfDays.includes(dow)){ assign[h.name]='half'; return; }
+        if(!h.days.includes(dow)){assign[h.name]='nowork';return;}
+        if(isDrOut){assign[h.name]='drout';return;}
+        if(h.noRot){assign[h.name]='helen';return;}
+        if(offFT.includes(h.name)||offPT.includes(h.name)){assign[h.name]='off';return;}
+        if(h.halfDays.includes(dow)){assign[h.name]='half';return;}
         assign[h.name]='work';
       });
       schedData[key]=assign;
     });
   });
-  saveFTQueue(ftQ);
-  savePTQueue(ptQ);
+  saveQ(ftqKey(),ftQ);
+  saveQ(ptqKey(),ptQ);
 }
 
 function renderCal(){
@@ -316,7 +351,7 @@ function renderCal(){
   let html='';
   weeks.forEach(week=>{
     week.forEach((date,dow)=>{
-      if(date===null){ html+=`<div class="cal-cell empty"></div>`; return; }
+      if(date===null){html+=`<div class="cal-cell empty"></div>`;return;}
       const key=dayKey(curYear,curMonth,date);
       const assign=schedData[key]||{};
       const isDrOut=Object.values(assign).every(v=>v==='drout'||v==='nowork');
@@ -326,7 +361,7 @@ function renderCal(){
       let inner=`<div class="date-lbl"><span>${date}</span>${isDrOut?'<span class="drout-lbl">Dr out</span>':`<span class="w-count">${wc} in</span>`}</div>`;
       HYGS.forEach(h=>{
         const s=assign[h.name];
-        if(!s||s==='nowork'||s==='drout') return;
+        if(!s||s==='nowork'||s==='drout')return;
         const cc=s==='helen'?'c-helen':s==='off'?'c-off':s==='half'?'c-half':'c-work';
         const sf=s==='half'?' ½':s==='off'?' off':'';
         inner+=`<span class="chip ${cc}">${h.name}${sf}</span>`;
@@ -337,40 +372,107 @@ function renderCal(){
   document.getElementById('cal-body').innerHTML=html;
 }
 
+function getPayPeriods(){
+  // Find all unique pay period indices in this month
+  const weeks=getWeeks(curYear,curMonth);
+  const seen=new Set();
+  weeks.forEach(week=>{
+    week.forEach((date,dow)=>{
+      if(!date)return;
+      const d=new Date(curYear,curMonth,date);
+      const idx=getPayPeriodIndex(d);
+      seen.add(idx<0?0:idx);
+    });
+  });
+  return Array.from(seen).sort((a,b)=>a-b);
+}
+
 function renderHrs(){
   document.getElementById('hrs-title').textContent=`${MONTHS[curMonth]} ${curYear} — Hours tally`;
   const weeks=getWeeks(curYear,curMonth);
-  const c={};
-  HYGS.forEach(h=>{ c[h.name]={w:0,o:0,hf:0}; });
+  const periods=getPayPeriods();
+
+  // Build period pills
+  const banner=document.getElementById('pp-banner');
+  let pillHtml=`<button class="pp-pill all ${activePP==='all'?'active':''}" onclick="setPP('all',this)">Full month</button>`;
+  periods.forEach(idx=>{
+    const lbl=getPayPeriodLabel(idx);
+    pillHtml+=`<button class="pp-pill ${activePP===idx?'active':''}" onclick="setPP(${idx},this)">${lbl}</button>`;
+  });
+  banner.innerHTML=pillHtml;
+
+  // Compute counts per person per period and overall
+  const monthly={};
+  const byPeriod={};
+  HYGS.forEach(h=>{
+    monthly[h.name]={w:0,o:0,hf:0};
+    periods.forEach(idx=>{ byPeriod[`${h.name}_${idx}`]={w:0,o:0,hf:0}; });
+  });
+
   weeks.forEach(week=>{
     week.forEach((date,dow)=>{
-      if(!date) return;
+      if(!date)return;
+      const d=new Date(curYear,curMonth,date);
+      const pIdx=getPayPeriodIndex(d)<0?0:getPayPeriodIndex(d);
       const assign=schedData[dayKey(curYear,curMonth,date)]||{};
       HYGS.forEach(h=>{
         const s=assign[h.name];
-        if(s==='work'||s==='helen') c[h.name].w++;
-        else if(s==='half'){ c[h.name].w++; c[h.name].hf++; }
-        else if(s==='off') c[h.name].o++;
+        if(s==='work'||s==='helen'){monthly[h.name].w++;byPeriod[`${h.name}_${pIdx}`].w++;}
+        else if(s==='half'){monthly[h.name].w++;monthly[h.name].hf++;byPeriod[`${h.name}_${pIdx}`].w++;byPeriod[`${h.name}_${pIdx}`].hf++;}
+        else if(s==='off'){monthly[h.name].o++;byPeriod[`${h.name}_${pIdx}`].o++;}
       });
     });
   });
-  const maxH=Math.max(...HYGS.map(h=>{ const x=c[h.name]; return (x.w-x.hf)*8+x.hf*4; }),1);
-  let html='';
-  HYGS.forEach(h=>{
-    const x=c[h.name];
-    const hrs=(x.w-x.hf)*8+x.hf*4;
-    const pct=Math.round((hrs/maxH)*100);
-    html+=`<tr>
-      <td class="t-name">${h.name}</td>
-      <td style="color:var(--gray)">${h.type}</td>
-      <td>${x.w+x.o}</td>
-      <td class="t-off">${x.o}</td>
-      <td class="t-hrs">${x.w}</td>
-      <td class="t-hrs">${hrs} hrs</td>
-      <td><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>
-    </tr>`;
+
+  function hrs(c){return(c.w-c.hf)*8+c.hf*4;}
+
+  // Determine what to show
+  const showPeriods = activePP==='all' ? periods : [activePP];
+
+  // Build table header
+  let thead='<tr><th rowspan="2" style="vertical-align:bottom">Name</th><th rowspan="2" style="vertical-align:bottom">Type</th>';
+  showPeriods.forEach(idx=>{
+    thead+=`<th colspan="3" class="bw-col section-header">📅 ${getPayPeriodLabel(idx)}</th>`;
   });
-  document.getElementById('hrs-body').innerHTML=html;
+  if(activePP==='all'){
+    thead+=`<th class="sep" rowspan="2"></th><th colspan="4" class="mo-col section-header">📆 Full month</th>`;
+  }
+  thead+='</tr><tr>';
+  showPeriods.forEach(()=>{
+    thead+=`<th class="bw-col">Days worked</th><th class="bw-col">Days off</th><th class="bw-col">Hours</th>`;
+  });
+  if(activePP==='all'){
+    thead+=`<th class="mo-col">Days worked</th><th class="mo-col">Days off</th><th class="mo-col">Hours</th><th class="mo-col">Progress</th>`;
+  }
+  thead+='</tr>';
+  document.getElementById('hrs-thead').innerHTML=thead;
+
+  // Max hours for bar
+  const maxH=Math.max(...HYGS.map(h=>hrs(monthly[h.name])),1);
+
+  let tbody='';
+  HYGS.forEach(h=>{
+    const mo=monthly[h.name];
+    const moHrs=hrs(mo);
+    const pct=Math.round((moHrs/maxH)*100);
+    let row=`<tr><td class="t-name">${h.name}</td><td style="color:var(--gray);font-size:0.78rem">${h.type}</td>`;
+    showPeriods.forEach(idx=>{
+      const p=byPeriod[`${h.name}_${idx}`]||{w:0,o:0,hf:0};
+      row+=`<td class="t-hrs">${p.w}</td><td class="t-off">${p.o}</td><td class="t-hrs">${hrs(p)} hrs</td>`;
+    });
+    if(activePP==='all'){
+      row+=`<td class="sep"></td><td class="t-hrs">${mo.w}</td><td class="t-off">${mo.o}</td><td class="t-hrs">${moHrs} hrs</td>`;
+      row+=`<td><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>`;
+    }
+    row+='</tr>';
+    tbody+=row;
+  });
+  document.getElementById('hrs-body').innerHTML=tbody;
+}
+
+function setPP(idx,btn){
+  activePP=idx==='all'?'all':Number(idx);
+  renderHrs();
 }
 
 function renderRot(){
@@ -385,7 +487,7 @@ function renderRot(){
 }
 
 function openModal(key,date,dow){
-  editKey=key; editTmp=Object.assign({},schedData[key]||{});
+  editKey=key;editTmp=Object.assign({},schedData[key]||{});
   document.getElementById('modal-title').textContent=`${DNAMES[dow]}, ${MONTHS[curMonth]} ${date}`;
   renderModalRows();
   document.getElementById('modal').classList.add('open');
@@ -394,7 +496,6 @@ function openModal(key,date,dow){
 function renderModalRows(){
   const labels={work:'Working',half:'Half day',off:'Day off',nowork:'Not scheduled',helen:'Working (TH)',drout:'Dr out'};
   const bCls={work:'sw',half:'sh',off:'so',nowork:'sn',helen:'sw',drout:'sn'};
-  const cycle=['work','half','off','nowork'];
   let html='';
   HYGS.forEach(h=>{
     const s=editTmp[h.name]||'nowork';
@@ -406,8 +507,7 @@ function renderModalRows(){
 function cycleStatus(name){
   const cycle=['work','half','off','nowork'];
   const cur=editTmp[name]||'nowork';
-  const idx=cycle.indexOf(cur);
-  editTmp[name]=cycle[(idx+1)%cycle.length];
+  editTmp[name]=cycle[(cycle.indexOf(cur)+1)%cycle.length];
   renderModalRows();
 }
 
@@ -416,21 +516,22 @@ function saveModal(){
   saveMonth(curYear,curMonth);
   closeModal();
   renderCal();
-  renderHrs();
+  if(document.getElementById('panel-hrs').classList.contains('active'))renderHrs();
 }
 
 function closeModal(){
   document.getElementById('modal').classList.remove('open');
-  editKey=null; editTmp={};
+  editKey=null;editTmp={};
 }
 
 function changeMonth(dir){
   curMonth+=dir;
-  if(curMonth>11){ curMonth=0; curYear++; }
-  if(curMonth<0){ curMonth=11; curYear--; }
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  activePP='all';
   loadMonth(curYear,curMonth);
   renderCal();
-  renderHrs();
+  if(document.getElementById('panel-hrs').classList.contains('active'))renderHrs();
 }
 
 function switchTab(name,btn){
@@ -438,13 +539,17 @@ function switchTab(name,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   btn.classList.add('active');
-  if(name==='hrs') renderHrs();
-  if(name==='rot') renderRot();
+  if(name==='hrs')renderHrs();
+  if(name==='rot')renderRot();
 }
 
-document.getElementById('modal').addEventListener('click',e=>{
-  if(e.target===document.getElementById('modal')) closeModal();
-});
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+function printSchedule(){
+  renderHrs();
+  renderRot();
+  window.print();
+}
 
 loadMonth(curYear,curMonth);
 renderCal();
