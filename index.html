@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hygiene Team Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2e8b8f; --teal-light: #4aacb0; --teal-pale: #e6f6f7;
+    --coral: #e05c4b; --coral-pale: #fdecea;
+    --gold: #d4a017; --gold-pale: #fdf6e3;
+    --navy: #1a2744; --cream: #f9f7f3; --sand: #ede8df;
+    --gray: #9aa0b0; --white: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--cream); color: var(--navy); padding: 1.25rem; }
+
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--navy); }
+  h1 span { color: var(--teal); }
+  .subtitle { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; margin-bottom: 1.25rem; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .tab { padding: 6px 16px; border-radius: 8px; border: 1px solid var(--sand); background: var(--white); color: var(--gray); font-size: 13px; font-family: 'Nunito', sans-serif; cursor: pointer; font-weight: 600; transition: all 0.15s; }
+  .tab:hover { border-color: var(--teal); color: var(--teal); }
+  .tab.active { background: var(--navy); border-color: var(--navy); color: white; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* MONTH NAV */
+  .month-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .month-nav h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; flex: 1; }
+  .month-nav button { border: 1px solid var(--sand); background: var(--white); border-radius: 8px; padding: 5px 12px; cursor: pointer; color: var(--navy); font-size: 13px; font-family: 'Nunito', sans-serif; }
+  .month-nav button:hover { background: var(--sand); }
+
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 1rem; font-size: 12px; align-items: center; }
+  .leg { display: flex; align-items: center; gap: 5px; color: var(--gray); }
+  .leg-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  /* CALENDAR */
+  .cal-wrap { background: var(--white); border-radius: 12px; border: 1px solid var(--sand); overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  .cal-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .cal-head { background: var(--navy); color: white; text-align: center; padding: 8px 4px; font-size: 0.82rem; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.08); }
+  .cal-head:last-child { border-right: none; }
+  .cal-cell { border-right: 1px solid var(--sand); border-bottom: 1px solid var(--sand); padding: 5px; min-height: 120px; cursor: pointer; transition: background 0.12s; }
+  .cal-cell:nth-child(5n) { border-right: none; }
+  .cal-cell:hover { background: #f4f8f9; }
+  .cal-cell.friday { background: #f9fef9; }
+  .cal-cell.friday:hover { background: #f0faf0; }
+  .cal-cell.drout { background: #f5f5f5; cursor: default; pointer-events: none; opacity: 0.6; }
+  .cal-cell.empty { background: #fafafa; cursor: default; pointer-events: none; }
+  .date-lbl { font-size: 11px; color: var(--gray); font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .w-count { font-size: 10px; background: var(--teal-pale); color: var(--teal); border-radius: 8px; padding: 0 5px; font-weight: 700; }
+  .drout-lbl { font-size: 10px; background: #e0e0e0; color: #666; border-radius: 3px; padding: 1px 5px; }
+  .chip { display: block; font-size: 11px; padding: 2px 5px; border-radius: 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+  .c-work { background: var(--teal-pale); color: #1a6568; }
+  .c-half { background: #dff2f3; color: #256f73; border: 1px dashed var(--teal-light); }
+  .c-off  { background: var(--coral-pale); color: #a03020; text-decoration: line-through; }
+  .c-helen { background: var(--gold-pale); color: #9a7010; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--white); border-radius: 14px; border: 1px solid var(--sand); padding: 1.25rem; width: 340px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 1rem; }
+  .modal-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--sand); font-size: 13px; }
+  .modal-row:last-of-type { border-bottom: none; }
+  .m-name { font-weight: 700; }
+  .s-btn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--sand); cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 600; background: var(--cream); color: var(--gray); transition: all 0.12s; }
+  .s-btn.sw { background: var(--teal-pale); color: #1a6568; border-color: var(--teal); }
+  .s-btn.sh { background: #dff2f3; color: #256f73; border-color: var(--teal-light); font-style: italic; }
+  .s-btn.so { background: var(--coral-pale); color: #a03020; border-color: var(--coral); }
+  .s-btn.sn { background: var(--sand); color: var(--gray); }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
+  .modal-btns button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--sand); cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600; }
+  .btn-save { background: var(--navy); color: white; border-color: var(--navy); }
+  .btn-cancel { background: var(--white); color: var(--navy); }
+
+  /* HOURS TABLE */
+  .tbl { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--sand); box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  .tbl th { background: var(--navy); color: white; padding: 9px 12px; text-align: left; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tbl th:not(:first-child) { text-align: center; }
+  .tbl td { padding: 8px 12px; border-bottom: 1px solid var(--sand); font-size: 0.83rem; }
+  .tbl td:not(:first-child) { text-align: center; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:nth-child(even) td { background: #fdfcfa; }
+  .t-name { font-weight: 700; }
+  .t-hrs { color: var(--teal); font-weight: 700; }
+  .t-off { color: var(--coral); font-weight: 700; }
+  .bar-bg { width: 70px; background: var(--sand); border-radius: 4px; height: 7px; display: inline-block; vertical-align: middle; overflow: hidden; }
+  .bar-fg { height: 100%; background: var(--teal); border-radius: 4px; }
+
+  /* ROTATION INFO */
+  .rot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .rot-card { background: var(--white); border-radius: 10px; border: 1px solid var(--sand); padding: 12px 14px; }
+  .rot-day { font-weight: 700; font-size: 0.88rem; color: var(--navy); margin-bottom: 4px; }
+  .rot-detail { font-size: 0.78rem; color: var(--gray); line-height: 1.6; }
+  .rot-num { font-size: 1.4rem; font-weight: 700; color: var(--teal); }
+  .info-box { background: var(--gold-pale); border-left: 4px solid var(--gold); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: #7a5c10; line-height: 1.7; margin-bottom: 1rem; }
+
+  @media(max-width:600px) {
+    body { padding: 0.75rem; }
+    .cal-cell { min-height: 90px; padding: 3px; }
+    .chip { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Hygiene Team <span>Schedule</span></h1>
+<div class="subtitle">Remodel period · Equal rotation · Click any day to edit</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('cal',this)">📅 Calendar</button>
+  <button class="tab" onclick="switchTab('hrs',this)">📊 Hours tally</button>
+  <button class="tab" onclick="switchTab('rot',this)">🔄 Rotation info</button>
+</div>
+
+<!-- CALENDAR -->
+<div class="panel active" id="panel-cal">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">&#8592;</button>
+    <h2 id="cal-title"></h2>
+    <button onclick="changeMonth(1)">&#8594;</button>
+  </div>
+  <div class="legend">
+    <span class="leg"><span class="leg-dot" style="background:var(--teal)"></span>Working</span>
+    <span class="leg"><span class="leg-dot" style="background:#dff2f3;border:1px dashed var(--teal-light)"></span>Half day</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--coral)"></span>Day off</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--gold)"></span>Helen (TH)</span>
+    <span class="leg"><span class="leg-dot" style="background:#ccc"></span>Dr out</span>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-grid">
+      <div class="cal-head">Monday</div>
+      <div class="cal-head">Tuesday</div>
+      <div class="cal-head">Wednesday</div>
+      <div class="cal-head">Thursday</div>
+      <div class="cal-head">Friday ½</div>
+    </div>
+    <div class="cal-grid" id="cal-body"></div>
+  </div>
+  <p style="font-size:11px;color:var(--gray);margin-top:6px;">Click any day to edit. Changes auto-save in your browser.</p>
+</div>
+
+<!-- HOURS -->
+<div class="panel" id="panel-hrs">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">&#8592;</button>
+    <h2 id="hrs-title"></h2>
+    <button onclick="changeMonth(1)">&#8594;</button>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>Name</th><th>Type</th><th>Sched days</th><th>Days off</th><th>Days worked</th><th>Est. hours</th><th>Progress</th></tr></thead>
+    <tbody id="hrs-body"></tbody>
+  </table>
+  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 4 hrs</p>
+</div>
+
+<!-- ROTATION INFO -->
+<div class="panel" id="panel-rot">
+  <div class="info-box">
+    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot. Part-timers (Lisa, Amber, Laurie) share the other slot — but only on Tuesday when 2 are off. Mon/Wed/Thu have 1 off total, Tuesday has 2 off. Fridays have no rotation. Doctor-out days pause the queue.
+  </div>
+  <div class="rot-grid">
+    <div class="rot-card"><div class="rot-day">Monday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
+    <div class="rot-card"><div class="rot-day">Tuesday</div><div class="rot-num">2</div><div class="rot-detail">off per day<br>1 full-timer + 1 part-timer</div></div>
+    <div class="rot-card"><div class="rot-day">Wednesday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
+    <div class="rot-card"><div class="rot-day">Thursday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
+    <div class="rot-card"><div class="rot-day">Friday</div><div class="rot-num">0</div><div class="rot-detail">off — all 5 Friday<br>team members work</div></div>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>Name</th><th>Working days</th><th>Half days</th><th>Friday team</th><th>Rotation group</th></tr></thead>
+    <tbody id="rot-body"></tbody>
+  </table>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <h3 id="modal-title">Edit day</h3>
+    <div id="modal-rows"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveModal()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const HYGS = [
+  { name:'Lisa',     days:[0,1,2],     halfDays:[],    noRot:false, friday:false, type:'Part-time' },
+  { name:'Tara',     days:[0,1,2,3],   halfDays:[],    noRot:false, friday:false, type:'Full-time' },
+  { name:'Liz',      days:[0,1,2,3,4], halfDays:[2,4], noRot:false, friday:true,  type:'Full-time' },
+  { name:'Amber',    days:[0,1,2],     halfDays:[],    noRot:false, friday:false, type:'Part-time' },
+  { name:'Carrie',   days:[0,1,2,3,4], halfDays:[2,4], noRot:false, friday:true,  type:'Full-time' },
+  { name:'Susan',    days:[0,1,2,3,4], halfDays:[4],   noRot:false, friday:true,  type:'Full-time' },
+  { name:'Michelle', days:[0,1,2,3,4], halfDays:[4],   noRot:false, friday:true,  type:'Full-time' },
+  { name:'Laurie',   days:[1,2,3,4],   halfDays:[4],   noRot:false, friday:true,  type:'Part-time' },
+  { name:'Helen',    days:[3],         halfDays:[],    noRot:true,  friday:false, type:'Fixed (TH)' },
+];
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DNAMES  = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const DSHORT  = ['Mon','Tue','Wed','Thu','Fri'];
+
+// Off slots per day of week: 0=Mon,1=Tue,2=Wed,3=Thu,4=Fri
+// Mon=1(FT only), Tue=2(1FT+1PT), Wed=1(FT only), Thu=1(FT only), Fri=0
+const OFF_SLOTS = [
+  { ft:1, pt:0 }, // Mon
+  { ft:1, pt:1 }, // Tue
+  { ft:1, pt:0 }, // Wed
+  { ft:1, pt:0 }, // Thu
+  { ft:0, pt:0 }, // Fri
+];
+
+const FT_QUEUE_KEY = 'hyg_ftq';
+const PT_QUEUE_KEY = 'hyg_ptq';
+const FT_NAMES = ['Tara','Liz','Carrie','Susan','Michelle'];
+const PT_NAMES = ['Lisa','Amber','Laurie'];
+
+let curYear=2026, curMonth=5;
+let schedData={};
+let editKey=null, editTmp={};
+
+function lsKey(y,m){ return `hygSched_${y}_${m}`; }
+
+function loadFTQueue(){ try{ const s=localStorage.getItem(FT_QUEUE_KEY); return s?JSON.parse(s):[...FT_NAMES]; }catch(e){ return [...FT_NAMES]; } }
+function saveFTQueue(q){ try{ localStorage.setItem(FT_QUEUE_KEY,JSON.stringify(q)); }catch(e){} }
+function loadPTQueue(){ try{ const s=localStorage.getItem(PT_QUEUE_KEY); return s?JSON.parse(s):[...PT_NAMES]; }catch(e){ return [...PT_NAMES]; } }
+function savePTQueue(q){ try{ localStorage.setItem(PT_QUEUE_KEY,JSON.stringify(q)); }catch(e){} }
+
+function loadMonth(y,m){
+  try{ const s=localStorage.getItem(lsKey(y,m)); if(s){ schedData=JSON.parse(s); return; } }catch(e){}
+  schedData={};
+  buildDefault(y,m);
+}
+
+function saveMonth(y,m){
+  try{ localStorage.setItem(lsKey(y,m),JSON.stringify(schedData)); }catch(e){}
+}
+
+function getWeeks(y,m){
+  const first=new Date(y,m,1);
+  let startDow=first.getDay(); if(startDow===0)startDow=7;
+  const firstMon=new Date(y,m,1-(startDow-1));
+  const weeks=[];
+  let cur=new Date(firstMon);
+  while(true){
+    const week=[];
+    let any=false;
+    for(let d=0;d<5;d++){
+      const dt=new Date(cur); dt.setDate(cur.getDate()+d);
+      if(dt.getMonth()===m){ week.push(dt.getDate()); any=true; }
+      else week.push(null);
+    }
+    if(!any) break;
+    weeks.push(week);
+    cur.setDate(cur.getDate()+7);
+    if(cur.getMonth()>m&&cur.getFullYear()>=y) break;
+  }
+  return weeks;
+}
+
+function dayKey(y,m,date){ return `${y}-${m}-${date}`; }
+
+function buildDefault(y,m){
+  const drOut=(y===2026&&m===5)?new Set([15,25,29]):new Set();
+  const ftQ=loadFTQueue();
+  const ptQ=loadPTQueue();
+  const weeks=getWeeks(y,m);
+
+  weeks.forEach(week=>{
+    week.forEach((date,dow)=>{
+      if(!date) return;
+      const key=dayKey(y,m,date);
+      const isDrOut=drOut.has(date);
+      const assign={};
+      const slots=OFF_SLOTS[dow];
+      let offFT=[], offPT=[];
+
+      if(!isDrOut){
+        // Pick FT off
+        for(let i=0;i<ftQ.length&&offFT.length<slots.ft;i++){
+          const h=HYGS.find(x=>x.name===ftQ[i]);
+          if(h&&h.days.includes(dow)){ offFT.push(ftQ[i]); }
+        }
+        offFT.forEach(n=>{ ftQ.push(ftQ.splice(ftQ.indexOf(n),1)[0]); });
+        // Pick PT off
+        for(let i=0;i<ptQ.length&&offPT.length<slots.pt;i++){
+          const h=HYGS.find(x=>x.name===ptQ[i]);
+          if(h&&h.days.includes(dow)){ offPT.push(ptQ[i]); }
+        }
+        offPT.forEach(n=>{ ptQ.push(ptQ.splice(ptQ.indexOf(n),1)[0]); });
+      }
+
+      HYGS.forEach(h=>{
+        if(!h.days.includes(dow)){ assign[h.name]='nowork'; return; }
+        if(isDrOut){ assign[h.name]='drout'; return; }
+        if(h.noRot){ assign[h.name]='helen'; return; }
+        if(offFT.includes(h.name)||offPT.includes(h.name)){ assign[h.name]='off'; return; }
+        if(h.halfDays.includes(dow)){ assign[h.name]='half'; return; }
+        assign[h.name]='work';
+      });
+      schedData[key]=assign;
+    });
+  });
+  saveFTQueue(ftQ);
+  savePTQueue(ptQ);
+}
+
+function renderCal(){
+  document.getElementById('cal-title').textContent=`${MONTHS[curMonth]} ${curYear}`;
+  const weeks=getWeeks(curYear,curMonth);
+  let html='';
+  weeks.forEach(week=>{
+    week.forEach((date,dow)=>{
+      if(date===null){ html+=`<div class="cal-cell empty"></div>`; return; }
+      const key=dayKey(curYear,curMonth,date);
+      const assign=schedData[key]||{};
+      const isDrOut=Object.values(assign).every(v=>v==='drout'||v==='nowork');
+      const isFri=dow===4;
+      let cls='cal-cell'+(isFri?' friday':'')+(isDrOut?' drout':'');
+      const wc=HYGS.filter(h=>['work','half','helen'].includes(assign[h.name])).length;
+      let inner=`<div class="date-lbl"><span>${date}</span>${isDrOut?'<span class="drout-lbl">Dr out</span>':`<span class="w-count">${wc} in</span>`}</div>`;
+      HYGS.forEach(h=>{
+        const s=assign[h.name];
+        if(!s||s==='nowork'||s==='drout') return;
+        const cc=s==='helen'?'c-helen':s==='off'?'c-off':s==='half'?'c-half':'c-work';
+        const sf=s==='half'?' ½':s==='off'?' off':'';
+        inner+=`<span class="chip ${cc}">${h.name}${sf}</span>`;
+      });
+      html+=`<div class="${cls}" onclick="openModal('${key}',${date},${dow})">${inner}</div>`;
+    });
+  });
+  document.getElementById('cal-body').innerHTML=html;
+}
+
+function renderHrs(){
+  document.getElementById('hrs-title').textContent=`${MONTHS[curMonth]} ${curYear} — Hours tally`;
+  const weeks=getWeeks(curYear,curMonth);
+  const c={};
+  HYGS.forEach(h=>{ c[h.name]={w:0,o:0,hf:0}; });
+  weeks.forEach(week=>{
+    week.forEach((date,dow)=>{
+      if(!date) return;
+      const assign=schedData[dayKey(curYear,curMonth,date)]||{};
+      HYGS.forEach(h=>{
+        const s=assign[h.name];
+        if(s==='work'||s==='helen') c[h.name].w++;
+        else if(s==='half'){ c[h.name].w++; c[h.name].hf++; }
+        else if(s==='off') c[h.name].o++;
+      });
+    });
+  });
+  const maxH=Math.max(...HYGS.map(h=>{ const x=c[h.name]; return (x.w-x.hf)*8+x.hf*4; }),1);
+  let html='';
+  HYGS.forEach(h=>{
+    const x=c[h.name];
+    const hrs=(x.w-x.hf)*8+x.hf*4;
+    const pct=Math.round((hrs/maxH)*100);
+    html+=`<tr>
+      <td class="t-name">${h.name}</td>
+      <td style="color:var(--gray)">${h.type}</td>
+      <td>${x.w+x.o}</td>
+      <td class="t-off">${x.o}</td>
+      <td class="t-hrs">${x.w}</td>
+      <td class="t-hrs">${hrs} hrs</td>
+      <td><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  });
+  document.getElementById('hrs-body').innerHTML=html;
+}
+
+function renderRot(){
+  let html='';
+  HYGS.forEach(h=>{
+    const wd=h.days.map(d=>DSHORT[d]).join(', ');
+    const hd=h.halfDays.map(d=>DSHORT[d]).join(', ')||'—';
+    const rg=h.noRot?'Exempt':h.type==='Full-time'?'Full-timer queue':'Part-timer queue';
+    html+=`<tr><td class="t-name">${h.name}</td><td>${wd}</td><td>${hd}</td><td>${h.friday?'Yes':'—'}</td><td style="color:var(--gray)">${rg}</td></tr>`;
+  });
+  document.getElementById('rot-body').innerHTML=html;
+}
+
+function openModal(key,date,dow){
+  editKey=key; editTmp=Object.assign({},schedData[key]||{});
+  document.getElementById('modal-title').textContent=`${DNAMES[dow]}, ${MONTHS[curMonth]} ${date}`;
+  renderModalRows();
+  document.getElementById('modal').classList.add('open');
+}
+
+function renderModalRows(){
+  const labels={work:'Working',half:'Half day',off:'Day off',nowork:'Not scheduled',helen:'Working (TH)',drout:'Dr out'};
+  const bCls={work:'sw',half:'sh',off:'so',nowork:'sn',helen:'sw',drout:'sn'};
+  const cycle=['work','half','off','nowork'];
+  let html='';
+  HYGS.forEach(h=>{
+    const s=editTmp[h.name]||'nowork';
+    html+=`<div class="modal-row"><span class="m-name">${h.name}</span><button class="s-btn ${bCls[s]||'sn'}" onclick="cycleStatus('${h.name}')">${labels[s]||s}</button></div>`;
+  });
+  document.getElementById('modal-rows').innerHTML=html;
+}
+
+function cycleStatus(name){
+  const cycle=['work','half','off','nowork'];
+  const cur=editTmp[name]||'nowork';
+  const idx=cycle.indexOf(cur);
+  editTmp[name]=cycle[(idx+1)%cycle.length];
+  renderModalRows();
+}
+
+function saveModal(){
+  schedData[editKey]=Object.assign({},editTmp);
+  saveMonth(curYear,curMonth);
+  closeModal();
+  renderCal();
+  renderHrs();
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  editKey=null; editTmp={};
+}
+
+function changeMonth(dir){
+  curMonth+=dir;
+  if(curMonth>11){ curMonth=0; curYear++; }
+  if(curMonth<0){ curMonth=11; curYear--; }
+  loadMonth(curYear,curMonth);
+  renderCal();
+  renderHrs();
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='hrs') renderHrs();
+  if(name==='rot') renderRot();
+}
+
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal')) closeModal();
+});
+
+loadMonth(curYear,curMonth);
+renderCal();
+</script>
+</body>
+</html>
