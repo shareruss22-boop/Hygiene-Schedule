@@ -143,10 +143,11 @@
     #panel-hrs,#panel-rot,.legend,.subtitle{display:none!important;}
     .panel{display:none!important;}
     #panel-cal{display:block!important;}
-    /* Hide screen chips, show print chips */
+    /* Hide screen chips, show print elements */
     .chip{display:none!important;}
-    .print-off-name{display:block!important;}
+    .print-off-box{display:block!important;}
     .print-working-count{display:block!important;}
+    .print-all-in{display:block!important;}
     h1{font-size:14pt;margin-bottom:2px;}
     .month-nav h2{font-size:13pt;margin-bottom:4px;}
     .cal-wrap{box-shadow:none;border:1px solid #999;}
@@ -162,8 +163,12 @@
     .day-status-bar{font-size:7pt;padding:1px 3px;}
   }
   /* Print-only elements hidden on screen */
-  .print-off-name{display:none;font-size:13pt;font-weight:800;color:#c0392b;line-height:1.3;margin-bottom:1px;}
-  .print-working-count{display:none;font-size:8pt;color:#555;margin-top:2px;}
+  .print-off-name{display:none;}
+  .print-working-count{display:none;font-size:8pt;color:#555;margin-top:3px;}
+  .print-off-box{display:none;border:2px solid #c0392b;border-radius:5px;overflow:hidden;margin-top:3px;}
+  .print-off-box-label{background:#c0392b;color:white;font-size:8pt;font-weight:800;text-align:center;padding:2px 4px;letter-spacing:0.1em;}
+  .print-off-box-names{padding:3px 6px;font-size:13pt;font-weight:800;color:#c0392b;line-height:1.35;}
+  .print-all-in{display:none;font-size:9pt;color:#2e8b8f;font-weight:600;font-style:italic;margin-top:4px;}
 
   .print-only-title{display:none;}
 
@@ -436,10 +441,10 @@ function renderCal(){
       let inner=`<div class="date-lbl"><span>${date}</span>${isDrOut?'<span class="drout-lbl">Dr out</span>':isClosed?'<span class="drout-lbl" style="background:#fce8e8;color:#8b2a1c;">Closed</span>':`<span class="w-count">${wc} in</span>`}</div>`;
       if(isClosed){
         inner+=`<div class="day-status-bar dsb-closed">🚫 Office Closed</div>`;
-        inner+=`<span class="print-off-name">Office Closed</span>`;
+        inner+=`<div class="print-off-box"><div class="print-off-box-label" style="background:#8b2a1c">CLOSED</div><div class="print-off-box-names" style="color:#8b2a1c">Office Closed</div></div>`;
       } else if(isDrOut){
         inner+=`<div class="day-status-bar dsb-drout">🩺 Dr Out</div>`;
-        inner+=`<span class="print-off-name">Dr Out</span>`;
+        inner+=`<div class="print-off-box"><div class="print-off-box-label" style="background:#555">DR OUT</div><div class="print-off-box-names" style="color:#555">Dr Out</div></div>`;
       } else {
         const offNames=[];
         HYGS.forEach(h=>{
@@ -450,11 +455,11 @@ function renderCal(){
           inner+=`<span class="chip ${cc}">${h.name}${sf}</span>`;
           if(s==='off') offNames.push(h.name);
         });
-        // Print-only: show just off names large, plus working count
+        // Print-only: OFF box with label, or All in
         if(offNames.length>0){
-          inner+=`<span class="print-off-name">${offNames.join('<br>')}</span>`;
+          inner+=`<div class="print-off-box"><div class="print-off-box-label">OFF</div><div class="print-off-box-names">${offNames.join('<br>')}</div></div>`;
         } else {
-          inner+=`<span class="print-off-name" style="color:#1a6568">All in</span>`;
+          inner+=`<span class="print-all-in">✓ All in</span>`;
         }
         inner+=`<span class="print-working-count">${wc} working</span>`;
       }
