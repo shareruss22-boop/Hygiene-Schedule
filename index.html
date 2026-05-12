@@ -524,22 +524,24 @@ function renderHrs(){
   // Alternating colors per period
   const PP_COLORS=['a','b','c','a','b','c'];
 
-  // Build table header
-  let thead='<tr><th rowspan="2" style="vertical-align:bottom;min-width:55px;max-width:65px">Name</th>';
+  // Build table header - single row with period label + sub-cols grouped
+  let thead='<tr><th style="min-width:60px;background:var(--navy);color:white;font-size:0.72rem;padding:8px 8px">NAME</th>';
   showPeriods.forEach((idx,pi)=>{
     const col=PP_COLORS[pi%PP_COLORS.length];
-    thead+=`<th class="pp-sep" rowspan="2"></th><th colspan="3" class="bw-col-${col} section-header">${getPayPeriodLabel(idx,true)}</th>`;
+    const colors={a:'#1a5c6e',b:'#2d6e3a',c:'#1a5c6e'};
+    const bg=colors[col];
+    thead+=`<th style="width:4px;padding:0;background:#111"></th>`;
+    thead+=`<th style="background:${bg};color:white;font-size:0.68rem;padding:6px 5px;text-align:center;white-space:nowrap">`;
+    thead+=`${getPayPeriodLabel(idx,true)}<br><span style="font-size:0.6rem;opacity:0.85;font-weight:400">Worked</span></th>`;
+    thead+=`<th style="background:${bg};color:white;font-size:0.6rem;padding:6px 4px;text-align:center">Off</th>`;
+    thead+=`<th style="background:${bg};color:white;font-size:0.6rem;padding:6px 5px;text-align:center;white-space:nowrap">Hrs</th>`;
   });
   if(activePP==='all'){
-    thead+=`<th class="sep" rowspan="2"></th><th colspan="4" class="mo-col section-header">📆 Full month</th>`;
-  }
-  thead+='</tr><tr>';
-  showPeriods.forEach((idx,pi)=>{
-    const col=PP_COLORS[pi%PP_COLORS.length];
-    thead+=`<th class="pp-sep" style="background:#223"></th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Worked</th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Off</th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Hrs</th>`;
-  });
-  if(activePP==='all'){
-    thead+=`<th class="sep" style="background:#0f1e38"></th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Worked</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Off</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Hrs</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Progress</th>`;
+    thead+=`<th style="width:6px;padding:0;background:#0a1020"></th>`;
+    thead+=`<th style="background:#1a2744;color:white;font-size:0.68rem;padding:6px 5px;text-align:center">📆 Full Month<br><span style="font-size:0.6rem;opacity:0.85;font-weight:400">Worked</span></th>`;
+    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 4px;text-align:center">Off</th>`;
+    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 5px;text-align:center">Hrs</th>`;
+    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 5px;text-align:center">Progress</th>`;
   }
   thead+='</tr>';
   document.getElementById('hrs-thead').innerHTML=thead;
@@ -552,15 +554,24 @@ function renderHrs(){
     const mo=monthly[h.name];
     const moHrs=hrs(mo);
     const pct=Math.round((moHrs/maxH)*100);
-    let row=`<tr><td class="t-name">${h.name}</td>`;
+    const colors={a:'#e6f4f7',b:'#e8f5ea',c:'#e6f4f7'};
+    const colorsAlt={a:'#d4ecf1',b:'#d4eddb',c:'#d4ecf1'};
+    let row=`<tr><td class="t-name" style="white-space:nowrap">${h.name}</td>`;
     showPeriods.forEach((idx,pi)=>{
       const col=PP_COLORS[pi%PP_COLORS.length];
       const p=byPeriod[`${h.name}_${idx}`]||{w:0,o:0,hf:0};
-      row+=`<td class="pp-sep"></td><td class="t-hrs bw-td-${col}" style="white-space:nowrap">${p.w}</td><td class="t-off bw-td-${col}" style="white-space:nowrap">${p.o}</td><td class="t-hrs bw-td-${col}" style="white-space:nowrap">${hrs(p)}h</td>`;
+      const bg=colors[col];
+      row+=`<td style="width:4px;padding:0;background:var(--sand)"></td>`;
+      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#0e5457;font-weight:700;padding:6px 5px">${p.w}</td>`;
+      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#a03020;font-weight:700;padding:6px 4px">${p.o}</td>`;
+      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#0e5457;font-weight:700;padding:6px 5px">${hrs(p)}h</td>`;
     });
     if(activePP==='all'){
-      row+=`<td class="sep"></td><td class="t-hrs" style="white-space:nowrap">${mo.w}</td><td class="t-off" style="white-space:nowrap">${mo.o}</td><td class="t-hrs" style="white-space:nowrap">${moHrs}h</td>`;
-      row+=`<td><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>`;
+      row+=`<td style="width:6px;padding:0;background:#c5c9d4"></td>`;
+      row+=`<td class="t-hrs" style="white-space:nowrap;padding:6px 5px">${mo.w}</td>`;
+      row+=`<td class="t-off" style="white-space:nowrap;padding:6px 4px">${mo.o}</td>`;
+      row+=`<td class="t-hrs" style="white-space:nowrap;padding:6px 5px">${moHrs}h</td>`;
+      row+=`<td style="padding:6px 5px"><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>`;
     }
     row+='</tr>';
     tbody+=row;
