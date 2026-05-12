@@ -74,14 +74,24 @@
   .pp-pill.all{background:var(--navy);border-color:var(--navy);color:white;}
 
   /* HOURS TABLE */
-  .tbl-wrap{overflow-x:auto;}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .tbl{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--sand);box-shadow:0 2px 16px rgba(0,0,0,0.06);min-width:680px;}
-  .tbl th{background:var(--navy);color:white;padding:9px 10px;text-align:left;font-size:0.76rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+  .tbl th{background:var(--navy);color:white;padding:6px 6px;text-align:left;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;white-space:nowrap;}
   .tbl th:not(:first-child){text-align:center;}
-  .tbl th.bw-col{background:#243560;}
+  .tbl th.bw-col-a{background:#1a5c6e;}
+  .tbl th.bw-col-b{background:#2d6e3a;}
+  .tbl th.bw-col-c{background:#1a5c6e;}
   .tbl th.mo-col{background:#1a2744;}
   .tbl th.sep{background:#0f1e38;width:8px;padding:0;}
-  .tbl td{padding:8px 10px;border-bottom:1px solid var(--sand);font-size:0.82rem;}
+  .tbl td.bw-td-a{background:#e6f4f7;}
+  .tbl td.bw-td-b{background:#e8f5ea;}
+  .tbl td.bw-td-c{background:#e6f4f7;}
+  .tbl tr:nth-child(even) td.bw-td-a{background:#d4ecf1;}
+  .tbl tr:nth-child(even) td.bw-td-b{background:#d4eddb;}
+  .tbl tr:nth-child(even) td.bw-td-c{background:#d4ecf1;}
+  .tbl td.pp-sep{background:var(--sand);padding:0;width:3px;}
+  .tbl th.pp-sep{background:#223;width:3px;padding:0;}
+  .tbl td{padding:6px 6px;border-bottom:1px solid var(--sand);font-size:0.8rem;}
   .tbl td:not(:first-child){text-align:center;}
   .tbl tr:last-child td{border-bottom:none;}
   .tbl tr:nth-child(even) td{background:#fdfcfa;}
@@ -126,21 +136,34 @@
   .print-btn:hover{border-color:var(--teal);color:var(--teal);}
 
   @media print{
-    body{background:#fff;padding:0.5rem;color:#000;}
-    .tabs,.print-btn,.month-nav button,.pp-banner,.modal-overlay{display:none!important;}
-    .panel{display:block!important;}
-    #panel-hrs,#panel-rot{margin-top:1.5rem;page-break-before:always;}
-    h1{font-size:1.4rem;}
-    .subtitle{margin-bottom:0.5rem;}
-    .cal-cell{min-height:90px;cursor:default;}
+    @page { size: landscape; margin: 0.4in; }
+    body{background:#fff;padding:0;color:#000;font-size:10px;}
+    /* Hide everything except the print calendar */
+    .tabs,.print-btn,.month-nav button,.pp-banner,.modal-overlay,
+    #panel-hrs,#panel-rot,.legend,.subtitle{display:none!important;}
+    .panel{display:none!important;}
+    #panel-cal{display:block!important;}
+    /* Hide screen chips, show print chips */
+    .chip{display:none!important;}
+    .print-off-name{display:block!important;}
+    .print-working-count{display:block!important;}
+    h1{font-size:14pt;margin-bottom:2px;}
+    .month-nav h2{font-size:13pt;margin-bottom:4px;}
+    .cal-wrap{box-shadow:none;border:1px solid #999;}
+    .cal-grid{grid-template-columns:repeat(5,1fr);}
+    .cal-head{padding:4px 2px;font-size:9pt;background:#1a2744!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .cal-cell{min-height:80px;padding:4px;cursor:default;border:0.5px solid #ccc;}
     .cal-cell:hover{background:inherit;}
-    .cal-wrap{box-shadow:none;border:1px solid #ccc;}
-    .tbl{box-shadow:none;min-width:unset!important;}
-    .tbl-wrap{overflow:visible;}
-    .bar-bg,.bar-fg{display:none;}
-    .month-nav h2{font-size:1.1rem;}
-    .print-only-title{display:block!important;}
+    .cal-cell.friday{background:#f9fef9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .cal-cell.drout{opacity:0.5;}
+    .date-lbl{font-size:8pt;margin-bottom:2px;}
+    .w-count{display:none;}
+    .drout-lbl{font-size:7pt;}
+    .day-status-bar{font-size:7pt;padding:1px 3px;}
   }
+  /* Print-only elements hidden on screen */
+  .print-off-name{display:none;font-size:13pt;font-weight:800;color:#c0392b;line-height:1.3;margin-bottom:1px;}
+  .print-working-count{display:none;font-size:8pt;color:#555;margin-top:2px;}
 
   .print-only-title{display:none;}
 
@@ -207,24 +230,24 @@
       <tbody id="hrs-body"></tbody>
     </table>
   </div>
-  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 4 hrs &nbsp;·&nbsp; Pay periods start Jun 6, then every 2 weeks.</p>
+  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 4 hrs &nbsp;·&nbsp; Pay periods: May 27–Jun 9, Jun 10–Jun 23, every 2 weeks thereafter. May days prior to Jun 1 are not tracked.</p>
 </div>
 
 <!-- ROTATION -->
 <div class="panel" id="panel-rot">
   <div class="info-box">
-    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot every day Mon–Thu. On Tuesdays, part-timers (Lisa, Amber, Laurie) also rotate one off slot — making Tuesdays 2 off total. Fridays have no rotation. Doctor-out days pause the queue.
+    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot every day Mon–Thu. On Tuesdays, part-timers (Lisa, Amber, Laurie) also rotate one off slot — making Tuesdays 2 off total. <strong>Fridays:</strong> Susan, Liz, and Carrie always work (fixed). Michelle, Laurie, Tara, Lisa, Amber, and Helen rotate equally for the remaining 3 slots — each sitting out roughly every other Friday. Helen works every Thursday and joins the Friday rotation. Doctor-out days pause the queue.
   </div>
   <div class="rot-grid">
     <div class="rot-card"><div class="rot-day">Monday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
     <div class="rot-card"><div class="rot-day">Tuesday</div><div class="rot-num">2</div><div class="rot-detail">off per day<br>1 full-timer + 1 part-timer</div></div>
     <div class="rot-card"><div class="rot-day">Wednesday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
-    <div class="rot-card"><div class="rot-day">Thursday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
-    <div class="rot-card"><div class="rot-day">Friday</div><div class="rot-num">0</div><div class="rot-detail">off — all 5 Friday<br>team members work</div></div>
+    <div class="rot-card"><div class="rot-day">Thursday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out<br>Helen always works</div></div>
+    <div class="rot-card"><div class="rot-day">Friday ½ day</div><div class="rot-num">6</div><div class="rot-detail">working every Friday<br><strong>Fixed:</strong> Susan, Liz, Carrie<br><strong>Rotating (3 of 6):</strong><br>Michelle, Laurie, Tara,<br>Lisa, Amber, Helen</div></div>
   </div>
   <table class="tbl" style="min-width:unset;">
     <thead><tr>
-      <th>Name</th><th>Working days</th><th>Half days</th><th>Friday team</th><th>Rotation group</th>
+      <th>Name</th><th>Works</th><th>Half days</th><th>Friday</th><th>Rotation</th>
     </tr></thead>
     <tbody id="rot-body"></tbody>
   </table>
@@ -244,23 +267,29 @@
 
 <script>
 const HYGS=[
-  {name:'Lisa',    days:[0,1,2],    halfDays:[],   noRot:false,friday:false,type:'Part-time'},
-  {name:'Tara',    days:[0,1,2,3],  halfDays:[],   noRot:false,friday:false,type:'Full-time'},
-  {name:'Liz',     days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:true, type:'Full-time'},
-  {name:'Amber',   days:[0,1,2],    halfDays:[],   noRot:false,friday:false,type:'Part-time'},
-  {name:'Carrie',  days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:true, type:'Full-time'},
-  {name:'Susan',   days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:true, type:'Full-time'},
-  {name:'Michelle',days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:true, type:'Full-time'},
-  {name:'Laurie',  days:[1,2,3,4],  halfDays:[4],  noRot:false,friday:true, type:'Part-time'},
-  {name:'Helen',   days:[3],        halfDays:[],   noRot:true, friday:false,type:'Fixed (TH)'},
+  {name:'Lisa',    days:[0,1,2,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
+  {name:'Tara',    days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Full-time'},
+  {name:'Liz',     days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
+  {name:'Amber',   days:[0,1,2,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
+  {name:'Carrie',  days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
+  {name:'Susan',   days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
+  {name:'Michelle',days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Full-time'},
+  {name:'Laurie',  days:[1,2,3,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
+  {name:'Helen',   days:[3,4],      halfDays:[4],  noRot:true, friday:'rotate',fridayFixed:false,type:'Fixed (TH)'},
 ];
+
+// Friday: Susan/Liz/Carrie fixed, 6 rotate for 3 slots
+const FRI_FIXED  = ['Susan','Liz','Carrie'];
+const FRI_ROTATE = ['Michelle','Laurie','Tara','Lisa','Amber','Helen'];
+const FRI_SLOTS  = 3;
+function friqKey(){return 'hyg_friq';}
 
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DNAMES=['Monday','Tuesday','Wednesday','Thursday','Friday'];
 const DSHORT=['Mon','Tue','Wed','Thu','Fri'];
 
 // Pay period anchor: June 6, 2026. Every 14 days after that.
-const PP_ANCHOR=new Date(2026,5,6); // Jun 6 2026
+const PP_ANCHOR=new Date(2026,4,27); // May 27 2026
 
 function getPayPeriodIndex(date){
   const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
@@ -269,11 +298,12 @@ function getPayPeriodIndex(date){
   return Math.floor(diff/14)+1;
 }
 
-function getPayPeriodLabel(idx){
-  if(idx===0) return 'Before Jun 6';
+function getPayPeriodLabel(idx, short=false){
+  if(idx===0) return short ? 'Pre Jun 6' : 'Before Jun 6';
   const start=new Date(PP_ANCHOR); start.setDate(start.getDate()+(idx-1)*14);
   const end=new Date(start); end.setDate(end.getDate()+13);
   const fmt=d=>`${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
+  if(short) return `${fmt(start)}–${fmt(end)}`;
   return `${fmt(start)} – ${fmt(end)}`;
 }
 
@@ -323,13 +353,40 @@ function buildDefault(y,m){
   const drOut=(y===2026&&m===5)?new Set([15,25,29]):new Set();
   const ftQ=loadQ(ftqKey(),FT_NAMES);
   const ptQ=loadQ(ptqKey(),PT_NAMES);
+  const friQ=loadQ(friqKey(),[...FRI_ROTATE]);
   const weeks=getWeeks(y,m);
   weeks.forEach(week=>{
     week.forEach((date,dow)=>{
       if(!date)return;
       const key=dayKey(y,m,date);
       const isDrOut=drOut.has(date);
+      const isFriday=dow===4;
       const assign={};
+
+      if(isFriday){
+        if(isDrOut){
+          HYGS.forEach(h=>{ assign[h.name]=h.days.includes(4)?'drout':'nowork'; });
+        } else {
+          // Pick 3 from rotation queue
+          let friWorking=[];
+          for(let i=0;i<friQ.length&&friWorking.length<FRI_SLOTS;i++){
+            friWorking.push(friQ[i]);
+          }
+          friWorking.forEach(n=>{friQ.push(friQ.splice(friQ.indexOf(n),1)[0]);});
+          HYGS.forEach(h=>{
+            if(h.fridayFixed){assign[h.name]='half';return;}
+            if(h.friday==='rotate'){
+              assign[h.name]=friWorking.includes(h.name)?'half':'off';
+            } else {
+              assign[h.name]='nowork';
+            }
+          });
+        }
+        schedData[key]=assign;
+        return;
+      }
+
+      // Mon–Thu
       const slots=OFF_SLOTS[dow];
       let offFT=[],offPT=[];
       if(!isDrOut){
@@ -347,7 +404,8 @@ function buildDefault(y,m){
       HYGS.forEach(h=>{
         if(!h.days.includes(dow)){assign[h.name]='nowork';return;}
         if(isDrOut){assign[h.name]='drout';return;}
-        if(h.noRot){assign[h.name]='helen';return;}
+        if(h.noRot&&dow===3){assign[h.name]='helen';return;}
+        if(h.noRot){assign[h.name]='nowork';return;}
         if(offFT.includes(h.name)||offPT.includes(h.name)){assign[h.name]='off';return;}
         if(h.halfDays.includes(dow)){assign[h.name]='half';return;}
         assign[h.name]='work';
@@ -357,6 +415,7 @@ function buildDefault(y,m){
   });
   saveQ(ftqKey(),ftQ);
   saveQ(ptqKey(),ptQ);
+  saveQ(friqKey(),friQ);
 }
 
 function renderCal(){
@@ -375,16 +434,29 @@ function renderCal(){
       let cls='cal-cell'+(isFri?' friday':'')+(isDrOut||isClosed?' drout':'');
       const wc=HYGS.filter(h=>['work','half','helen'].includes(assign[h.name])).length;
       let inner=`<div class="date-lbl"><span>${date}</span>${isDrOut?'<span class="drout-lbl">Dr out</span>':isClosed?'<span class="drout-lbl" style="background:#fce8e8;color:#8b2a1c;">Closed</span>':`<span class="w-count">${wc} in</span>`}</div>`;
-      if(isClosed) inner+=`<div class="day-status-bar dsb-closed">🚫 Office Closed</div>`;
-      else if(isDrOut) inner+=`<div class="day-status-bar dsb-drout">🩺 Dr Out</div>`;
-      else {
+      if(isClosed){
+        inner+=`<div class="day-status-bar dsb-closed">🚫 Office Closed</div>`;
+        inner+=`<span class="print-off-name">Office Closed</span>`;
+      } else if(isDrOut){
+        inner+=`<div class="day-status-bar dsb-drout">🩺 Dr Out</div>`;
+        inner+=`<span class="print-off-name">Dr Out</span>`;
+      } else {
+        const offNames=[];
         HYGS.forEach(h=>{
           const s=assign[h.name];
           if(!s||s==='nowork'||s==='drout')return;
           const cc=s==='helen'?'c-helen':s==='off'?'c-off':s==='half'?'c-half':'c-work';
           const sf=s==='half'?' ½':s==='off'?' off':'';
           inner+=`<span class="chip ${cc}">${h.name}${sf}</span>`;
+          if(s==='off') offNames.push(h.name);
         });
+        // Print-only: show just off names large, plus working count
+        if(offNames.length>0){
+          inner+=`<span class="print-off-name">${offNames.join('<br>')}</span>`;
+        } else {
+          inner+=`<span class="print-off-name" style="color:#1a6568">All in</span>`;
+        }
+        inner+=`<span class="print-working-count">${wc} working</span>`;
       }
       html+=`<div class="${cls}" onclick="openModal('${key}',${date},${dow})">${inner}</div>`;
     });
@@ -449,20 +521,25 @@ function renderHrs(){
   // Determine what to show
   const showPeriods = activePP==='all' ? periods : [activePP];
 
+  // Alternating colors per period
+  const PP_COLORS=['a','b','c','a','b','c'];
+
   // Build table header
-  let thead='<tr><th rowspan="2" style="vertical-align:bottom">Name</th><th rowspan="2" style="vertical-align:bottom">Type</th>';
-  showPeriods.forEach(idx=>{
-    thead+=`<th colspan="3" class="bw-col section-header">📅 ${getPayPeriodLabel(idx)}</th>`;
+  let thead='<tr><th rowspan="2" style="vertical-align:bottom;min-width:55px;max-width:65px">Name</th>';
+  showPeriods.forEach((idx,pi)=>{
+    const col=PP_COLORS[pi%PP_COLORS.length];
+    thead+=`<th class="pp-sep" rowspan="2"></th><th colspan="3" class="bw-col-${col} section-header">${getPayPeriodLabel(idx,true)}</th>`;
   });
   if(activePP==='all'){
     thead+=`<th class="sep" rowspan="2"></th><th colspan="4" class="mo-col section-header">📆 Full month</th>`;
   }
   thead+='</tr><tr>';
-  showPeriods.forEach(()=>{
-    thead+=`<th class="bw-col">Days worked</th><th class="bw-col">Days off</th><th class="bw-col">Hours</th>`;
+  showPeriods.forEach((idx,pi)=>{
+    const col=PP_COLORS[pi%PP_COLORS.length];
+    thead+=`<th class="pp-sep" style="background:#223"></th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Worked</th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Off</th><th class="bw-col-${col}" style="font-size:0.65rem;padding:4px 4px">Hrs</th>`;
   });
   if(activePP==='all'){
-    thead+=`<th class="mo-col">Days worked</th><th class="mo-col">Days off</th><th class="mo-col">Hours</th><th class="mo-col">Progress</th>`;
+    thead+=`<th class="sep" style="background:#0f1e38"></th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Worked</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Off</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Hrs</th><th class="mo-col" style="font-size:0.65rem;padding:4px 4px">Progress</th>`;
   }
   thead+='</tr>';
   document.getElementById('hrs-thead').innerHTML=thead;
@@ -475,13 +552,14 @@ function renderHrs(){
     const mo=monthly[h.name];
     const moHrs=hrs(mo);
     const pct=Math.round((moHrs/maxH)*100);
-    let row=`<tr><td class="t-name">${h.name}</td><td style="color:var(--gray);font-size:0.78rem">${h.type}</td>`;
-    showPeriods.forEach(idx=>{
+    let row=`<tr><td class="t-name">${h.name}</td>`;
+    showPeriods.forEach((idx,pi)=>{
+      const col=PP_COLORS[pi%PP_COLORS.length];
       const p=byPeriod[`${h.name}_${idx}`]||{w:0,o:0,hf:0};
-      row+=`<td class="t-hrs">${p.w}</td><td class="t-off">${p.o}</td><td class="t-hrs">${hrs(p)} hrs</td>`;
+      row+=`<td class="pp-sep"></td><td class="t-hrs bw-td-${col}" style="white-space:nowrap">${p.w}</td><td class="t-off bw-td-${col}" style="white-space:nowrap">${p.o}</td><td class="t-hrs bw-td-${col}" style="white-space:nowrap">${hrs(p)}h</td>`;
     });
     if(activePP==='all'){
-      row+=`<td class="sep"></td><td class="t-hrs">${mo.w}</td><td class="t-off">${mo.o}</td><td class="t-hrs">${moHrs} hrs</td>`;
+      row+=`<td class="sep"></td><td class="t-hrs" style="white-space:nowrap">${mo.w}</td><td class="t-off" style="white-space:nowrap">${mo.o}</td><td class="t-hrs" style="white-space:nowrap">${moHrs}h</td>`;
       row+=`<td><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>`;
     }
     row+='</tr>';
@@ -500,8 +578,9 @@ function renderRot(){
   HYGS.forEach(h=>{
     const wd=h.days.map(d=>DSHORT[d]).join(', ');
     const hd=h.halfDays.map(d=>DSHORT[d]).join(', ')||'—';
-    const rg=h.noRot?'Exempt':h.type==='Full-time'?'Full-timer queue':'Part-timer queue';
-    html+=`<tr><td class="t-name">${h.name}</td><td>${wd}</td><td>${hd}</td><td>${h.friday?'Yes':'—'}</td><td style="color:var(--gray)">${rg}</td></tr>`;
+    const mThuRot=h.noRot?'Exempt (TH fixed)':h.type==='Full-time'?'Full-timer queue':'Part-timer queue';
+    const friStatus=h.fridayFixed?'<span style="color:#0e5457;font-weight:700">Fixed every Fri</span>':h.friday==='rotate'?'<span style="color:#856404;font-weight:700">Rotates (3 of 6)</span>':'<span style="color:#aaa">—</span>';
+    html+=`<tr><td class="t-name">${h.name}</td><td>${wd}</td><td>${hd}</td><td>${friStatus}</td><td style="color:var(--gray)">${mThuRot}</td></tr>`;
   });
   document.getElementById('rot-body').innerHTML=html;
 }
