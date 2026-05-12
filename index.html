@@ -138,11 +138,20 @@
   @media print{
     @page { size: landscape; margin: 0.25in; }
     body{background:#fff;padding:0;color:#000;font-size:8px;}
-    /* Hide everything except the print calendar */
+    /* Hide everything except calendar and hours tally */
     .tabs,.print-btn,.month-nav button,.pp-banner,.modal-overlay,
-    #panel-hrs,#panel-rot,.legend,.subtitle{display:none!important;}
+    #panel-rot,.legend,.subtitle{display:none!important;}
     .panel{display:none!important;}
     #panel-cal{display:block!important;}
+    #panel-hrs{display:block!important;page-break-before:always;margin-top:0;}
+    .tbl-wrap{overflow:visible!important;}
+    .tbl{box-shadow:none!important;min-width:unset!important;font-size:8pt;}
+    .tbl th{padding:4px 5px!important;font-size:7.5pt!important;}
+    .tbl td{padding:4px 5px!important;font-size:8pt!important;}
+    .bar-bg{width:45px!important;}
+    .pp-banner{display:none!important;}
+    .month-nav{margin-bottom:4px!important;}
+    .print-hrs-header{display:flex!important;}
     /* Hide screen chips, show print elements */
     .chip{display:none!important;}
     .print-off-box{display:block!important;}
@@ -225,6 +234,13 @@
 
 <!-- HOURS -->
 <div class="panel" id="panel-hrs">
+  <div class="print-hrs-header" style="display:none;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a2744;padding-bottom:6px;margin-bottom:10px;">
+    <div>
+      <span style="font-family:serif;font-size:13pt;font-weight:700;color:#1a2744;">Hygiene Team <span style="color:#2e8b8f;">Schedule</span> — Hours Tally</span><br>
+      <span id="print-hrs-subtitle" style="font-size:8pt;color:#888;"></span>
+    </div>
+    <div id="print-pp-legend" style="display:flex;gap:6px;flex-wrap:wrap;font-size:8pt;"></div>
+  </div>
   <div class="month-nav">
     <button onclick="changeMonth(-1)">&#8592;</button>
     <h2 id="hrs-title"></h2>
@@ -694,9 +710,28 @@ function switchTab(name,btn){
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
 
 function printSchedule(){
+  const prevPP = activePP;
+  activePP = 'all';
   renderHrs();
   renderRot();
+  const subtitle = document.getElementById('print-hrs-subtitle');
+  if(subtitle) subtitle.textContent = MONTHS[curMonth]+' '+curYear+' · Full day = 8 hrs · Half day = 4 hrs';
+  const legend = document.getElementById('print-pp-legend');
+  if(legend){
+    const periods = getPayPeriods();
+    const colors = ['#e6f4f7','#e8f5ea','#e6f4f7'];
+    const textColors = ['#1a5c6e','#2d6e3a','#1a5c6e'];
+    let lhtml = '';
+    periods.forEach((idx,pi)=>{
+      const bg=colors[pi%3]; const tc=textColors[pi%3];
+      lhtml+=`<span style="background:${bg};color:${tc};border:1px solid ${tc};border-radius:8px;padding:2px 8px;font-size:8pt;font-weight:700">${getPayPeriodLabel(idx,true)}</span>`;
+    });
+    lhtml+=`<span style="background:#e8eaf0;color:#1a2744;border:1px solid #888;border-radius:8px;padding:2px 8px;font-size:8pt;font-weight:700">Full month</span>`;
+    legend.innerHTML = lhtml;
+  }
   window.print();
+  activePP = prevPP;
+  renderHrs();
 }
 
 loadMonth(curYear,curMonth);
