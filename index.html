@@ -292,6 +292,31 @@
 </div>
 
 <script>
+// ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
+const SUPA_URL = 'https://kfxqqjydkaykebbwlbbh.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeHFxanlka2F5a2ViYndsYmJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2Nzk3NDEsImV4cCI6MjA5NDI1NTc0MX0.IHYVCoIUfEZ9Sj9b3E7u57ZBbnvy4cVBUjDRPW2UvOo';
+
+async function supaGet(id) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/schedule?id=eq.${encodeURIComponent(id)}&select=data`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const rows = await res.json();
+  return rows && rows.length > 0 ? JSON.parse(rows[0].data) : null;
+}
+
+async function supaSet(id, data) {
+  await fetch(`${SUPA_URL}/rest/v1/schedule`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify({ id, data: JSON.stringify(data) })
+  });
+}
+
 const HYGS=[
   {name:'Lisa',    days:[0,1,2,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
   {name:'Tara',    days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Full-time'},
@@ -350,12 +375,20 @@ function ptqKey(){return 'hyg_ptq2';}
 function loadQ(k,def){try{const s=localStorage.getItem(k);return s?JSON.parse(s):[...def];}catch(e){return[...def];}}
 function saveQ(k,q){try{localStorage.setItem(k,JSON.stringify(q));}catch(e){}}
 
-function loadMonth(y,m){
+async function loadMonth(y,m){
+  try{
+    const remote = await supaGet(lsKey(y,m));
+    if(remote){ schedData=remote; return; }
+  }catch(e){ console.warn('Supabase load failed, falling back to localStorage',e); }
+  // Fallback to localStorage
   try{const s=localStorage.getItem(lsKey(y,m));if(s){schedData=JSON.parse(s);return;}}catch(e){}
   schedData={};
   buildDefault(y,m);
 }
-function saveMonth(y,m){try{localStorage.setItem(lsKey(y,m),JSON.stringify(schedData));}catch(e){}}
+async function saveMonth(y,m){
+  try{ await supaSet(lsKey(y,m), schedData); }catch(e){ console.warn('Supabase save failed',e); }
+  try{ localStorage.setItem(lsKey(y,m),JSON.stringify(schedData)); }catch(e){}
+}
 
 function getWeeks(y,m){
   const first=new Date(y,m,1);
@@ -688,12 +721,12 @@ function closeModal(){
   editKey=null;editTmp={};
 }
 
-function changeMonth(dir){
+async function changeMonth(dir){
   curMonth+=dir;
   if(curMonth>11){curMonth=0;curYear++;}
   if(curMonth<0){curMonth=11;curYear--;}
   activePP='all';
-  loadMonth(curYear,curMonth);
+  await loadMonth(curYear,curMonth);
   renderCal();
   if(document.getElementById('panel-hrs').classList.contains('active'))renderHrs();
 }
@@ -734,8 +767,10 @@ function printSchedule(){
   renderHrs();
 }
 
-loadMonth(curYear,curMonth);
-renderCal();
+(async()=>{
+  await loadMonth(curYear,curMonth);
+  renderCal();
+})();
 </script>
 </body>
 </html>
