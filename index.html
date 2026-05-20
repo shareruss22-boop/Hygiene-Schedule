@@ -3,774 +3,884 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hygiene Team Schedule</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Shariti's Command Center 🌙</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --teal:#2e8b8f;--teal-light:#4aacb0;--teal-pale:#e6f6f7;
-    --coral:#e05c4b;--coral-pale:#fdecea;
-    --gold:#d4a017;--gold-pale:#fdf6e3;
-    --navy:#1a2744;--cream:#f9f7f3;--sand:#ede8df;
-    --gray:#9aa0b0;--white:#fff;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--navy);padding:1.25rem;}
-  h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--navy);}
-  h1 span{color:var(--teal);}
-  .subtitle{font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;margin-bottom:1.25rem;}
-  .tabs{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
-  .tab{padding:6px 16px;border-radius:8px;border:1px solid var(--sand);background:var(--white);color:var(--gray);font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;}
-  .tab:hover{border-color:var(--teal);color:var(--teal);}
-  .tab.active{background:var(--navy);border-color:var(--navy);color:white;}
-  .panel{display:none;}.panel.active{display:block;}
+:root {
+  --cream:#F5F0E8; --warm-white:#FAF7F2; --parchment:#EDE5D8;
+  --hay:#C8A96E; --hay-light:#E8D5A8; --hay-dark:#8B6F3E;
+  --earth:#5C4A32; --forest:#3D5A3E; --forest-light:#5C7D5E;
+  --forest-muted:#8AAD8B; --forest-pale:#EEF5EE;
+  --rust:#B85C38; --rust-light:#F2DDD6;
+  --sage:#7A9E7E; --dark-sage:#4A7A50; --sage-pale:#EEF5EE;
+  --ink:#2A2118; --muted:#6A5C50; --border:#DDD4C4;
+  --shadow:rgba(42,33,24,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--cream);font-family:'Jost',sans-serif;color:var(--ink);min-height:100vh;font-size:16px}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
 
-  .month-nav{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
-  .month-nav h2{font-family:'Playfair Display',serif;font-size:1.3rem;flex:1;}
-  .month-nav button{border:1px solid var(--sand);background:var(--white);border-radius:8px;padding:5px 12px;cursor:pointer;color:var(--navy);font-size:13px;font-family:'Nunito',sans-serif;}
-  .month-nav button:hover{background:var(--sand);}
+.page{display:none;min-height:100vh;position:relative;z-index:1}
+.page.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:1rem;font-size:12px;align-items:center;}
-  .leg{display:flex;align-items:center;gap:5px;color:var(--gray);}
-  .leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.back-btn{display:flex;align-items:center;gap:8px;padding:14px 20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);width:100%;position:sticky;top:0;z-index:50;font-weight:500}
+.back-btn:hover{color:var(--earth)}
 
-  .cal-wrap{background:var(--white);border-radius:12px;border:1px solid var(--sand);overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06);}
-  .cal-grid{display:grid;grid-template-columns:repeat(5,1fr);}
-  .cal-head{background:var(--navy);color:white;text-align:center;padding:8px 4px;font-size:0.82rem;font-weight:600;border-right:1px solid rgba(255,255,255,0.08);}
-  .cal-head:last-child{border-right:none;}
-  .cal-cell{border-right:1px solid var(--sand);border-bottom:1px solid var(--sand);padding:5px;min-height:120px;cursor:pointer;transition:background 0.12s;}
-  .cal-cell:nth-child(5n){border-right:none;}
-  .cal-cell:hover{background:#f4f8f9;}
-  .cal-cell.friday{background:#f9fef9;}.cal-cell.friday:hover{background:#f0faf0;}
-  .cal-cell.drout{background:#f5f5f5;cursor:default;pointer-events:none;opacity:0.6;}
-  .cal-cell.empty{background:#fafafa;cursor:default;pointer-events:none;}
-  .date-lbl{font-size:11px;color:var(--gray);font-weight:700;display:flex;justify-content:space-between;margin-bottom:3px;}
-  .w-count{font-size:10px;background:var(--teal-pale);color:var(--teal);border-radius:8px;padding:0 5px;font-weight:700;}
-  .drout-lbl{font-size:10px;background:#e0e0e0;color:#666;border-radius:3px;padding:1px 5px;}
-  .chip{display:block;font-size:13px;padding:3px 7px;border-radius:5px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;letter-spacing:0.01em;}
-  .c-work{background:var(--teal-pale);color:#0e5457;}
-  .c-half{background:#dff2f3;color:#1a5e62;border:1.5px dashed var(--teal-light);}
-  .c-off{background:var(--coral-pale);color:#8b2a1c;text-decoration:line-through;}
-  .c-helen{background:var(--gold-pale);color:#7a5c08;}
-  .c-closed{background:#f0f0f0;color:#555;font-style:italic;}
+/* HOME */
+#home{display:flex;flex-direction:column;min-height:100vh;padding:0 0 60px}
+.home-hero{padding:64px 24px 40px;text-align:center;animation:fadeIn 0.6s ease}
+.home-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--hay-dark);margin-bottom:16px;font-weight:500}
+.home-title{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,10vw,68px);color:var(--earth);line-height:1.05;font-weight:400;margin-bottom:8px}
+.home-title em{color:var(--forest);font-style:italic}
+.home-sub{font-size:16px;color:var(--muted);font-weight:300;letter-spacing:0.04em}
+.home-cards{padding:0 20px;display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto;width:100%}
+.home-card{background:var(--warm-white);border:1.5px solid var(--border);border-radius:20px;padding:28px 22px;cursor:pointer;transition:all 0.22s;box-shadow:0 4px 20px var(--shadow);display:flex;align-items:center;gap:20px;animation:fadeIn 0.5s ease both}
+.home-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px var(--shadow);border-color:var(--forest-muted)}
+.home-card:active{transform:scale(0.98)}
+.home-card-icon{font-size:38px;flex-shrink:0}
+.home-card-text{flex:1}
+.home-card-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--earth);margin-bottom:4px}
+.home-card-sub{font-size:14px;color:var(--muted);font-weight:300;line-height:1.5}
+.home-card-arrow{font-size:22px;color:var(--forest-muted);flex-shrink:0}
+.home-card.finance{border-left:4px solid var(--hay)}
+.home-card.gypsy{border-left:4px solid var(--forest-muted)}
+.home-card.therapy{border-left:4px solid var(--sage)}
+.home-card.admin{border-left:4px solid var(--rust)}
+.home-date{text-align:center;margin-top:32px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--muted);opacity:0.55}
+.d1{animation-delay:0.05s}.d2{animation-delay:0.12s}.d3{animation-delay:0.19s}.d4{animation-delay:0.26s}.d5{animation-delay:0.33s}
 
-  /* Day-level status overlays */
-  .day-status-bar{font-size:11px;font-weight:700;text-align:center;padding:3px 6px;border-radius:5px;margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;}
-  .dsb-drout{background:#e8e8e8;color:#555;}
-  .dsb-closed{background:#fce8e8;color:#8b2a1c;}
+/* PAGE HEADER */
+.page-header{padding:32px 24px 24px;border-bottom:1px solid var(--border);background:var(--warm-white)}
+.page-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--hay-dark);margin-bottom:8px;font-weight:500}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,7vw,50px);font-weight:600;color:var(--earth);line-height:1.05}
+.page-title em{color:var(--forest);font-style:italic}
 
-  /* Day-level buttons in modal */
-  .day-action-row{display:flex;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:2px solid var(--sand);}
-  .day-action-btn{flex:1;padding:7px 6px;border-radius:8px;border:1.5px solid var(--sand);cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;background:var(--white);color:var(--gray);transition:all 0.15s;text-align:center;}
-  .day-action-btn:hover{border-color:var(--navy);color:var(--navy);}
-  .day-action-btn.da-drout{background:#e8e8e8;color:#444;border-color:#bbb;}
-  .day-action-btn.da-closed{background:#fce8e8;color:#8b2a1c;border-color:#e8a898;}
-  .day-action-btn.da-normal{background:var(--teal-pale);color:#0e5457;border-color:var(--teal);}
+.content{max-width:680px;margin:0 auto;padding:24px 20px 80px}
+.section{margin-bottom:36px}
+.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--hay-dark);margin-bottom:14px;font-weight:500}
 
-  /* PAY PERIOD BANNER */
-  .pp-banner{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
-  .pp-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--sand);background:var(--white);color:var(--gray);cursor:pointer;transition:all 0.15s;}
-  .pp-pill:hover{border-color:var(--teal);color:var(--teal);}
-  .pp-pill.active{background:var(--teal);border-color:var(--teal);color:white;}
-  .pp-pill.all{background:var(--navy);border-color:var(--navy);color:white;}
+.card{background:var(--warm-white);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;box-shadow:0 2px 16px var(--shadow);animation:fadeIn 0.4s ease both}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:var(--earth)}
+.badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-weight:500}
+.badge-green{background:#D6E8D6;color:var(--forest)}
+.badge-amber{background:#F0E4C8;color:var(--hay-dark)}
+.badge-rust{background:#F2DDD6;color:var(--rust)}
+.badge-moon{background:#EDE5D8;color:var(--earth)}
+.badge-sage{background:rgba(122,158,126,0.2);color:var(--dark-sage)}
 
-  /* HOURS TABLE */
-  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .tbl{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--sand);box-shadow:0 2px 16px rgba(0,0,0,0.06);min-width:680px;}
-  .tbl th{background:var(--navy);color:white;padding:6px 6px;text-align:left;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;white-space:nowrap;}
-  .tbl th:not(:first-child){text-align:center;}
-  .tbl th.bw-col-a{background:#1a5c6e;}
-  .tbl th.bw-col-b{background:#2d6e3a;}
-  .tbl th.bw-col-c{background:#1a5c6e;}
-  .tbl th.mo-col{background:#1a2744;}
-  .tbl th.sep{background:#0f1e38;width:8px;padding:0;}
-  .tbl td.bw-td-a{background:#e6f4f7;}
-  .tbl td.bw-td-b{background:#e8f5ea;}
-  .tbl td.bw-td-c{background:#e6f4f7;}
-  .tbl tr:nth-child(even) td.bw-td-a{background:#d4ecf1;}
-  .tbl tr:nth-child(even) td.bw-td-b{background:#d4eddb;}
-  .tbl tr:nth-child(even) td.bw-td-c{background:#d4ecf1;}
-  .tbl td.pp-sep{background:var(--sand);padding:0;width:3px;}
-  .tbl th.pp-sep{background:#223;width:3px;padding:0;}
-  .tbl td{padding:6px 6px;border-bottom:1px solid var(--sand);font-size:0.8rem;}
-  .tbl td:not(:first-child){text-align:center;}
-  .tbl tr:last-child td{border-bottom:none;}
-  .tbl tr:nth-child(even) td{background:#fdfcfa;}
-  .tbl td.sep{background:var(--sand);padding:0;width:8px;}
-  .t-name{font-weight:700;}
-  .t-hrs{color:var(--teal);font-weight:700;}
-  .t-off{color:var(--coral);font-weight:700;}
-  .bar-bg{width:60px;background:var(--sand);border-radius:4px;height:7px;display:inline-block;vertical-align:middle;overflow:hidden;}
-  .bar-fg{height:100%;background:var(--teal);border-radius:4px;}
-  .period-label{font-size:11px;color:var(--gray);font-weight:400;}
+/* EDITABLE BUDGET */
+.budget-list{display:flex;flex-direction:column}
+.budget-line{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px dashed var(--border)}
+.budget-line:last-child{border-bottom:none}
+.budget-label-wrap{flex:1;display:flex;flex-direction:column;gap:2px}
+.budget-label-input{font-size:16px;font-weight:500;color:var(--ink);background:transparent;border:none;outline:none;font-family:'Jost',sans-serif;width:100%;padding:2px 0}
+.budget-label-input:focus{background:var(--parchment);border-radius:6px;padding:2px 8px}
+.budget-note-input{font-size:12px;color:var(--muted);font-style:italic;background:transparent;border:none;outline:none;font-family:'Jost',sans-serif;width:100%}
+.budget-note-input:focus{background:var(--parchment);border-radius:4px;padding:1px 6px}
+.budget-note-input::placeholder{color:var(--border)}
+.budget-amount-input{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--forest);background:transparent;border:none;outline:none;text-align:right;width:88px}
+.budget-amount-input:focus{background:var(--forest-pale);border-radius:6px;padding:2px 6px}
+.delete-btn{width:30px;height:30px;border-radius:50%;background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
+.delete-btn:hover{background:var(--rust-light);color:var(--rust)}
+.add-line-btn{display:flex;align-items:center;gap:8px;padding:10px 4px;cursor:pointer;font-size:15px;font-weight:500;color:var(--forest);background:none;border:none;font-family:'Jost',sans-serif;margin-top:8px;width:100%}
+.add-line-btn:hover{color:var(--forest-light)}
+.add-line-btn .plus{font-size:22px;font-weight:300}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;border-top:2px solid var(--border);margin-top:8px}
+.total-label{font-size:17px;font-weight:700;color:var(--ink)}
+.total-val{font-family:'DM Mono',monospace;font-size:19px;font-weight:500;color:var(--earth)}
 
-  /* section headers in table */
-  .tbl th.section-header{text-align:center;font-size:0.7rem;letter-spacing:0.06em;padding:6px 10px;}
+/* CALLOUTS */
+.callout{border-radius:16px;padding:20px 22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 16px var(--shadow)}
+.callout-green{background:linear-gradient(135deg,#EAF4EB,#D8EDDA);border:1px solid #B5D9B8}
+.callout-amber{background:linear-gradient(135deg,#F5EDD8,#EDE0C4);border:1px solid #D9C49A}
+.callout-moon{background:linear-gradient(135deg,#F0EBE0,#E8DFD0);border:1px solid var(--border)}
+.callout-text{font-size:14px;line-height:1.6}
+.callout-text.green{color:var(--forest)}
+.callout-text.amber{color:var(--hay-dark)}
+.callout-text.moon{color:var(--earth)}
+.callout-text strong{font-family:'Cormorant Garamond',serif;font-size:19px;display:block;margin-bottom:2px;font-weight:700}
+.callout-amount{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;white-space:nowrap;text-align:right;line-height:1.1}
+.callout-amount.green{color:var(--forest)}
+.callout-amount.amber{color:var(--hay-dark)}
+.callout-amount.moon{color:var(--earth)}
+.callout-amount small{font-size:12px;opacity:0.65;display:block}
 
-  /* MODAL */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:center;justify-content:center;}
-  .modal-overlay.open{display:flex;}
-  .modal-box{background:var(--white);border-radius:14px;border:1px solid var(--sand);padding:1.25rem;width:340px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);}
-  .modal-box h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;}
-  .modal-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sand);font-size:13px;}
-  .modal-row:last-of-type{border-bottom:none;}
-  .m-name{font-weight:700;}
-  .s-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--sand);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:600;background:var(--cream);color:var(--gray);}
-  .s-btn.sw{background:var(--teal-pale);color:#1a6568;border-color:var(--teal);}
-  .s-btn.sh{background:#dff2f3;color:#256f73;border-color:var(--teal-light);font-style:italic;}
-  .s-btn.so{background:var(--coral-pale);color:#a03020;border-color:var(--coral);}
-  .s-btn.sn{background:var(--sand);color:var(--gray);}
-  .modal-btns{display:flex;gap:8px;margin-top:1rem;}
-  .modal-btns button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--sand);cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;}
-  .btn-save{background:var(--navy);color:white;border-color:var(--navy);}
-  .btn-cancel{background:var(--white);color:var(--navy);}
+/* INCOME BAR */
+.income-card{background:var(--warm-white);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;box-shadow:0 2px 16px var(--shadow)}
+.income-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.income-lbl{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--earth);font-weight:600}
+.income-amt{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--forest)}
+.stacked-bar{display:flex;height:12px;border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-bottom:14px}
+.bar-seg{height:100%}
+.bar-legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 
-  /* ROT */
-  .rot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem;}
-  .rot-card{background:var(--white);border-radius:10px;border:1px solid var(--sand);padding:12px 14px;}
-  .rot-day{font-weight:700;font-size:0.88rem;color:var(--navy);margin-bottom:4px;}
-  .rot-detail{font-size:0.78rem;color:var(--gray);line-height:1.6;}
-  .rot-num{font-size:1.4rem;font-weight:700;color:var(--teal);}
-  .info-box{background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:#7a5c10;line-height:1.7;margin-bottom:1rem;}
+/* SEASON TABS */
+.season-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.season-tab{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--cream);color:var(--muted);transition:all 0.2s;font-weight:500}
+.season-tab.active{background:var(--forest);color:#fff;border-color:var(--forest)}
+.season-panel{display:none}
+.season-panel.active{display:block}
 
-  .print-btn{padding:6px 16px;border-radius:8px;border:1px solid var(--sand);background:var(--white);color:var(--gray);font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;margin-left:auto;}
-  .print-btn:hover{border-color:var(--teal);color:var(--teal);}
+/* SAVINGS */
+.savings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.savings-item{background:var(--cream);border-radius:12px;padding:16px;border:1px solid var(--border)}
+.savings-icon{font-size:22px;margin-bottom:8px}
+.savings-name{font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:400}
+.savings-amt{font-family:'DM Mono',monospace;font-size:20px;color:var(--forest);font-weight:500}
+.savings-note{font-size:12px;color:var(--muted);margin-top:4px}
 
-  @media print{
-    @page { size: landscape; margin: 0.25in; }
-    body{background:#fff;padding:0;color:#000;font-size:8px;}
-    /* Hide everything except calendar and hours tally */
-    .tabs,.print-btn,.month-nav button,.pp-banner,.modal-overlay,
-    #panel-rot,.legend,.subtitle{display:none!important;}
-    .panel{display:none!important;}
-    #panel-cal{display:block!important;}
-    #panel-hrs{display:block!important;page-break-before:always;margin-top:0;}
-    .tbl-wrap{overflow:visible!important;}
-    .tbl{box-shadow:none!important;min-width:unset!important;font-size:8pt;}
-    .tbl th{padding:4px 5px!important;font-size:7.5pt!important;}
-    .tbl td{padding:4px 5px!important;font-size:8pt!important;}
-    .bar-bg{width:45px!important;}
-    .pp-banner{display:none!important;}
-    .month-nav{margin-bottom:4px!important;}
-    .print-hrs-header{display:flex!important;}
-    /* Hide screen chips, show print elements */
-    .chip{display:none!important;}
-    .print-off-box{display:block!important;}
-    .print-working-count{display:block!important;}
-    .print-all-in{display:block!important;}
-    h1{font-size:11pt;margin-bottom:1px;line-height:1.1;}
-    .month-nav h2{font-size:10pt;margin-bottom:3px;}
-    .cal-wrap{box-shadow:none;border:1px solid #999;}
-    .cal-grid{grid-template-columns:repeat(5,1fr);}
-    .cal-head{padding:3px 2px;font-size:7.5pt;background:#1a2744!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .cal-cell{min-height:0!important;height:calc((100vh - 1.5in) / 5 - 4px);max-height:115px;padding:3px;cursor:default;border:0.5px solid #ccc;overflow:hidden;}
-    .cal-cell:hover{background:inherit;}
-    .cal-cell.friday{background:#f9fef9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .cal-cell.drout{opacity:0.5;}
-    .date-lbl{font-size:7pt;margin-bottom:2px;}
-    .w-count{display:none;}
-    .drout-lbl{font-size:6pt;}
-    .day-status-bar{font-size:6pt;padding:1px 2px;display:none;}
-    .print-off-box{border-width:1.5px!important;border-radius:3px!important;margin-top:1px!important;}
-    .print-off-box-label{font-size:6.5pt!important;padding:1px 3px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .print-off-box-names{font-size:9.5pt!important;padding:2px 4px!important;line-height:1.2!important;font-weight:800!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .print-working-count{font-size:6pt!important;margin-top:1px!important;}
-    .print-all-in{font-size:6.5pt!important;margin-top:2px!important;}
-  }
-  /* Print-only elements hidden on screen */
-  .print-off-name{display:none;}
-  .print-working-count{display:none;font-size:8pt;color:#555;margin-top:3px;}
-  .print-off-box{display:none;border:2px solid #c0392b;border-radius:5px;overflow:hidden;margin-top:3px;}
-  .print-off-box-label{background:#c0392b;color:white;font-size:8pt;font-weight:800;text-align:center;padding:2px 4px;letter-spacing:0.1em;}
-  .print-off-box-names{padding:3px 6px;font-size:13pt;font-weight:800;color:#c0392b;line-height:1.35;}
-  .print-all-in{display:none;font-size:9pt;color:#2e8b8f;font-weight:600;font-style:italic;margin-top:4px;}
+/* GYPSY */
+.gypsy-hero{background:linear-gradient(150deg,#EEF5EE,var(--warm-white));border:1.5px solid var(--forest-muted);border-radius:16px;padding:26px 22px;margin-bottom:14px;box-shadow:0 2px 16px var(--shadow)}
+.gypsy-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--forest);background:#D6E8D6;display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:14px;font-weight:500}
+.gypsy-name{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:var(--earth);margin-bottom:4px}
+.gypsy-sub{font-size:15px;color:var(--muted);margin-bottom:22px;font-weight:300}
+.gypsy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-item{background:var(--cream);border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:20px;color:var(--forest);font-weight:500;display:block}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:4px}
 
-  .print-only-title{display:none;}
+.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.care-item{background:var(--warm-white);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 8px var(--shadow)}
+.care-role{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--hay-dark);margin-bottom:6px;font-weight:500}
+.care-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.care-detail{font-size:13px;color:var(--muted);line-height:1.6}
 
-  @media(max-width:600px){
-    body{padding:0.75rem;}
-    .cal-cell{min-height:90px;padding:3px;}
-    .chip{font-size:10px;}
-  }
+.diet-tbd{background:linear-gradient(135deg,#F5EDD8,#EDE0C4);border:1px solid #D9C49A;border-radius:16px;padding:28px 22px;text-align:center;margin-bottom:14px}
+.diet-tbd-icon{font-size:36px;margin-bottom:12px}
+.diet-tbd-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--earth);margin-bottom:8px;font-weight:700}
+.diet-tbd-text{font-size:14px;color:var(--hay-dark);line-height:1.7}
+
+.protocol-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.protocol-item{background:var(--cream);border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center}
+.protocol-val{font-family:'DM Mono',monospace;font-size:18px;color:var(--forest);font-weight:500;margin-bottom:4px}
+.protocol-lbl{font-size:12px;color:var(--muted)}
+
+.deworm-list{display:flex;flex-direction:column;gap:10px}
+.deworm-item{display:flex;align-items:center;gap:14px;background:var(--warm-white);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px var(--shadow)}
+.deworm-item:hover{border-color:var(--forest-muted)}
+.deworm-item.checked{background:var(--forest-pale);border-color:var(--forest-muted)}
+.deworm-checkbox{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px;font-weight:600}
+.deworm-item.checked .deworm-checkbox{background:var(--forest);border-color:var(--forest);color:#fff}
+.deworm-label{font-size:16px;font-weight:500;color:var(--ink);flex:1}
+.deworm-item.checked .deworm-label{color:var(--forest)}
+.deworm-date{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.deworm-item.checked .deworm-date{color:var(--forest-muted)}
+
+.vet-list{display:flex;flex-direction:column;gap:10px}
+.vet-item{display:flex;align-items:center;gap:14px;background:var(--warm-white);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 8px var(--shadow)}
+.vet-item.done{opacity:0.6}
+.vet-month{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--forest);min-width:36px;text-align:center;line-height:1.3;text-transform:uppercase}
+.vet-divider{width:1px;height:36px;background:var(--border);flex-shrink:0}
+.vet-content{flex:1}
+.vet-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.vet-detail{font-size:13px;color:var(--muted);line-height:1.5}
+.vet-cost{font-family:'DM Mono',monospace;font-size:13px;color:var(--forest);font-weight:500;white-space:nowrap}
+
+/* SHOW NAMES — selectable */
+.show-names{display:flex;flex-direction:column;gap:10px}
+.show-name-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--cream);border-radius:12px;border:1.5px solid var(--border);font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--earth);font-style:italic;cursor:pointer;transition:all 0.2s;justify-content:space-between}
+.show-name-item:hover{border-color:var(--forest-muted);background:var(--forest-pale)}
+.show-name-item.selected{background:linear-gradient(135deg,#EEF5EE,#D6E8D6);border-color:var(--forest);color:var(--forest)}
+.show-name-left{display:flex;align-items:center;gap:12px}
+.show-name-star{font-style:normal;font-size:16px}
+.show-name-item.selected .show-name-star{color:var(--forest)}
+.show-name-item:not(.selected) .show-name-star{color:var(--hay)}
+.vote-badge{font-family:'DM Mono',monospace;font-size:11px;font-style:normal;padding:3px 8px;border-radius:20px;background:var(--forest);color:#fff;opacity:0;transition:opacity 0.2s}
+.show-name-item.selected .vote-badge{opacity:1}
+.show-name-hint{font-size:12px;color:var(--muted);font-style:normal;font-family:'DM Mono',monospace;letter-spacing:0.05em;margin-bottom:10px}
+
+/* ADMIN */
+.bill-list{display:flex;flex-direction:column;gap:8px}
+.bill-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--cream);border-radius:12px;border:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.bill-name{font-size:15px;color:var(--ink);font-weight:400}
+.bill-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bill-date{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.bill-flag{font-size:11px;padding:3px 10px;border-radius:10px;font-family:'DM Mono',monospace;letter-spacing:0.08em;font-weight:500}
+.flag-amber{background:#F0E4C8;color:var(--hay-dark)}
+.flag-rust{background:#F2DDD6;color:var(--rust)}
+
+/* BOXES */
+.info-box{background:#EFF6EF;border:1px solid #B5D9B8;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--forest);margin-top:12px;display:flex;gap:8px;align-items:flex-start;line-height:1.6}
+.warn-box{background:#FBF0EC;border:1px solid #F2C8BC;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--rust);margin-top:12px;display:flex;gap:8px;align-items:flex-start;line-height:1.6}
+
+/* ═══════════════════════════════
+   THERAPY PAGE
+═══════════════════════════════ */
+.therapy-hero{background:linear-gradient(150deg,rgba(122,158,126,0.15),var(--warm-white));border:1.5px solid var(--sage);border-radius:16px;padding:26px 22px;margin-bottom:14px;box-shadow:0 2px 16px var(--shadow)}
+.therapy-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--dark-sage);background:rgba(122,158,126,0.2);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:14px;font-weight:500}
+.therapy-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--earth);margin-bottom:6px}
+.therapy-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+
+.therapy-progress-wrap{background:var(--parchment);border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.therapy-progress-fill{height:100%;background:linear-gradient(90deg,var(--hay),var(--dark-sage));border-radius:99px;transition:width 0.5s ease;width:0%}
+.therapy-progress-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.08em}
+
+/* Phase */
+.phase-block{margin-bottom:36px;position:relative}
+.phase-block:not(:last-child)::after{content:'';position:absolute;left:17px;top:52px;width:1px;height:calc(100% - 20px);background:linear-gradient(to bottom,var(--border),transparent)}
+
+.phase-header-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;cursor:pointer;user-select:none}
+.phase-marker{width:36px;height:36px;min-width:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;border:1.5px solid var(--border);color:var(--muted);background:var(--warm-white);transition:all 0.3s}
+.phase-block.all-done .phase-marker{background:var(--dark-sage);border-color:var(--dark-sage);color:#fff}
+.phase-info-wrap{flex:1}
+.phase-timeline-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--hay-dark);margin-bottom:2px;font-weight:500}
+.phase-title-txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:var(--earth)}
+.phase-count-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+
+/* Therapy items */
+.therapy-items{padding-left:50px;display:flex;flex-direction:column;gap:0}
+.therapy-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px dashed var(--border);cursor:pointer;transition:all 0.2s}
+.therapy-item:last-child{border-bottom:none}
+.therapy-item:hover{padding-left:4px}
+.therapy-check{width:20px;height:20px;min-width:20px;border:1.5px solid var(--border);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.25s;background:transparent;flex-shrink:0}
+.therapy-item.done .therapy-check{background:var(--dark-sage);border-color:var(--dark-sage)}
+.therapy-item.done .therapy-check::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.therapy-item-content{flex:1}
+.therapy-item-label{font-size:15px;font-weight:500;color:var(--ink);line-height:1.5;transition:all 0.2s}
+.therapy-item.done .therapy-item-label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--hay)}
+.therapy-item-note{font-size:12px;color:var(--muted);margin-top:3px;font-style:italic;line-height:1.5}
+.therapy-tag-pill{display:inline-block;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;font-style:normal;font-family:'DM Mono',monospace}
+.tag-free{background:rgba(122,158,126,0.15);color:var(--dark-sage)}
+.tag-paid{background:rgba(184,147,90,0.15);color:var(--hay-dark)}
+.tag-key{background:rgba(92,74,50,0.08);color:var(--earth)}
+
+.reset-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 20px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;margin-top:4px}
+.reset-btn:hover{border-color:var(--hay);color:var(--earth)}
+
+.therapy-quote{text-align:center;padding:24px;background:var(--warm-white);border:1px solid var(--border);border-radius:16px;margin-top:8px}
+.therapy-quote p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--muted);line-height:1.8}
+
+/* FOOTER */
+.footer{text-align:center;padding:28px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--muted);opacity:0.5}
+
+/* SUPABASE STATUS */
+.sync-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;text-align:right;margin-bottom:8px;opacity:0.7}
+
+@media(max-width:480px){
+  .savings-grid{grid-template-columns:1fr}
+  .care-grid{grid-template-columns:1fr}
+  .gypsy-stats{grid-template-columns:1fr 1fr}
+  .protocol-grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
 
-<h1>Hygiene Team <span>Schedule</span></h1>
-<div class="subtitle">Remodel period · Equal rotation · Click any day to edit</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('cal',this)">📅 Calendar</button>
-  <button class="tab" onclick="switchTab('hrs',this)">📊 Hours tally</button>
-  <button class="tab" onclick="switchTab('rot',this)">🔄 Rotation info</button>
-  <button class="print-btn" onclick="printSchedule()">🖨️ Print</button>
-</div>
-
-<!-- CALENDAR -->
-<div class="panel active" id="panel-cal">
-  <div class="month-nav">
-    <button onclick="changeMonth(-1)">&#8592;</button>
-    <h2 id="cal-title"></h2>
-    <button onclick="changeMonth(1)">&#8594;</button>
+<!-- HOME -->
+<div class="page active" id="home">
+  <div class="home-hero">
+    <div class="home-eyebrow">Personal Dashboard · 2026</div>
+    <h1 class="home-title">Shariti's<br><em>Command Center</em></h1>
+    <p class="home-sub">Your life, all in one place 🌙</p>
   </div>
-  <div class="legend">
-    <span class="leg"><span class="leg-dot" style="background:var(--teal)"></span>Working</span>
-    <span class="leg"><span class="leg-dot" style="background:#dff2f3;border:1px dashed var(--teal-light)"></span>Half day</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--coral)"></span>Day off</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--gold)"></span>Helen (TH)</span>
-    <span class="leg"><span class="leg-dot" style="background:#ccc"></span>Dr out</span>
-  </div>
-  <div class="cal-wrap">
-    <div class="cal-grid">
-      <div class="cal-head">Monday</div>
-      <div class="cal-head">Tuesday</div>
-      <div class="cal-head">Wednesday</div>
-      <div class="cal-head">Thursday</div>
-      <div class="cal-head">Friday ½</div>
+  <div class="home-cards">
+    <div class="home-card finance d1" onclick="showPage('finance')">
+      <div class="home-card-icon">💰</div>
+      <div class="home-card-text">
+        <div class="home-card-title">Personal Finance</div>
+        <div class="home-card-sub">Budget · Income · Savings · Horse costs</div>
+      </div>
+      <div class="home-card-arrow">›</div>
     </div>
-    <div class="cal-grid" id="cal-body"></div>
-  </div>
-  <p style="font-size:11px;color:var(--gray);margin-top:6px;">Click any day to edit. Changes save in your browser.</p>
-</div>
-
-<!-- HOURS -->
-<div class="panel" id="panel-hrs">
-  <div class="print-hrs-header" style="display:none;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a2744;padding-bottom:6px;margin-bottom:10px;">
-    <div>
-      <span style="font-family:serif;font-size:13pt;font-weight:700;color:#1a2744;">Hygiene Team <span style="color:#2e8b8f;">Schedule</span> — Hours Tally</span><br>
-      <span id="print-hrs-subtitle" style="font-size:8pt;color:#888;"></span>
+    <div class="home-card gypsy d2" onclick="showPage('gypsy')">
+      <div class="home-card-icon">🐴</div>
+      <div class="home-card-text">
+        <div class="home-card-title">Gypsy 🌙</div>
+        <div class="home-card-sub">Care · Diet · Vet calendar · Dewormer</div>
+      </div>
+      <div class="home-card-arrow">›</div>
     </div>
-    <div id="print-pp-legend" style="display:flex;gap:6px;flex-wrap:wrap;font-size:8pt;"></div>
-  </div>
-  <div class="month-nav">
-    <button onclick="changeMonth(-1)">&#8592;</button>
-    <h2 id="hrs-title"></h2>
-    <button onclick="changeMonth(1)">&#8594;</button>
-  </div>
-
-  <!-- Pay period selector -->
-  <div class="pp-banner" id="pp-banner"></div>
-
-  <div class="tbl-wrap">
-    <table class="tbl" id="hrs-table">
-      <thead id="hrs-thead"></thead>
-      <tbody id="hrs-body"></tbody>
-    </table>
-  </div>
-  <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 6 hrs &nbsp;·&nbsp; Pay periods: May 27–Jun 9, Jun 10–Jun 23, every 2 weeks thereafter. May days prior to Jun 1 are not tracked.</p>
-</div>
-
-<!-- ROTATION -->
-<div class="panel" id="panel-rot">
-  <div class="info-box">
-    <strong>How the rotation works:</strong> Full-timers (Tara, Liz, Carrie, Susan, Michelle) share one off slot every day Mon–Thu. On Tuesdays, part-timers (Lisa, Amber, Laurie) also rotate one off slot — making Tuesdays 2 off total. <strong>Fridays:</strong> Susan, Liz, and Carrie always work (fixed). Michelle, Laurie, Tara, Lisa, Amber, and Helen rotate equally for the remaining 3 slots — each sitting out roughly every other Friday. Helen works every Thursday and joins the Friday rotation. Doctor-out days pause the queue.
-  </div>
-  <div class="rot-grid">
-    <div class="rot-card"><div class="rot-day">Monday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
-    <div class="rot-card"><div class="rot-day">Tuesday</div><div class="rot-num">2</div><div class="rot-detail">off per day<br>1 full-timer + 1 part-timer</div></div>
-    <div class="rot-card"><div class="rot-day">Wednesday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out</div></div>
-    <div class="rot-card"><div class="rot-day">Thursday</div><div class="rot-num">1</div><div class="rot-detail">off per day<br>1 full-timer rotates out<br>Helen always works</div></div>
-    <div class="rot-card"><div class="rot-day">Friday ½ day</div><div class="rot-num">6</div><div class="rot-detail">working every Friday<br><strong>Fixed:</strong> Susan, Liz, Carrie<br><strong>Rotating (3 of 6):</strong><br>Michelle, Laurie, Tara,<br>Lisa, Amber, Helen</div></div>
-  </div>
-  <table class="tbl" style="min-width:unset;">
-    <thead><tr>
-      <th>Name</th><th>Works</th><th>Half days</th><th>Friday</th><th>Rotation</th>
-    </tr></thead>
-    <tbody id="rot-body"></tbody>
-  </table>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-box">
-    <h3 id="modal-title">Edit day</h3>
-    <div id="modal-rows"></div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveModal()">Save changes</button>
+    <div class="home-card therapy d3" onclick="showPage('therapy')">
+      <div class="home-card-icon">🌿</div>
+      <div class="home-card-text">
+        <div class="home-card-title">Equine Therapy Journey</div>
+        <div class="home-card-sub">2-year roadmap · Progress tracker</div>
+      </div>
+      <div class="home-card-arrow">›</div>
+    </div>
+    <div class="home-card admin d4" onclick="showPage('admin')">
+      <div class="home-card-icon">📅</div>
+      <div class="home-card-text">
+        <div class="home-card-title">Life Admin</div>
+        <div class="home-card-sub">Bills · Renewals · Reminders</div>
+      </div>
+      <div class="home-card-arrow">›</div>
     </div>
   </div>
+  <div class="home-date">Last updated May 2026</div>
+</div>
+
+<!-- FINANCE -->
+<div class="page" id="finance">
+  <button class="back-btn" onclick="showPage('home')">← Back to Home</button>
+  <div class="page-header">
+    <div class="page-eyebrow">May 2026</div>
+    <h2 class="page-title">💰 Personal <em>Finance</em></h2>
+  </div>
+  <div class="content">
+    <div class="section">
+      <div class="section-label">Income</div>
+      <div class="income-card">
+        <div class="income-row">
+          <div class="income-lbl">Monthly Income</div>
+          <div class="income-amt">$3,850</div>
+        </div>
+        <div class="stacked-bar">
+          <div class="bar-seg" style="width:32%;background:var(--hay)"></div>
+          <div class="bar-seg" style="width:19.7%;background:var(--forest-muted)"></div>
+          <div class="bar-seg" style="width:17.5%;background:var(--hay-light)"></div>
+          <div class="bar-seg" style="width:23.4%;background:#D6E8D6"></div>
+          <div class="bar-seg" style="width:7.4%;background:#E2DAD0"></div>
+        </div>
+        <div class="bar-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--hay)"></div>Fixed</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--forest-muted)"></div>Horse</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--hay-light)"></div>Flexible</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D6E8D6"></div>Savings</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E2DAD0"></div>Buffer</div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Fixed Monthly Expenses</div>
+      <div class="card">
+        <div class="budget-list" id="fixed-list"></div>
+        <button class="add-line-btn" onclick="addLine('fixed-list','fixed-total')"><span class="plus">+</span> Add expense</button>
+        <div class="total-row"><span class="total-label">Total Fixed</span><span class="total-val" id="fixed-total">$0.00</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Horse Budget · Seasonal</div>
+      <div class="card">
+        <div class="season-tabs">
+          <div class="season-tab active" onclick="showSeason('summer',this)">☀️ Summer</div>
+          <div class="season-tab" onclick="showSeason('fall',this)">🍂 Fall</div>
+          <div class="season-tab" onclick="showSeason('winter',this)">❄️ Winter</div>
+          <div class="season-tab" onclick="showSeason('spring',this)">🌱 Spring</div>
+        </div>
+        <div id="season-summer" class="season-panel active">
+          <div class="budget-list" id="horse-summer-list"></div>
+          <button class="add-line-btn" onclick="addLine('horse-summer-list','horse-summer-total')"><span class="plus">+</span> Add item</button>
+          <div class="total-row"><span class="total-label">☀️ Summer Total</span><span class="total-val" id="horse-summer-total">$0.00</span></div>
+        </div>
+        <div id="season-fall" class="season-panel">
+          <div class="budget-list" id="horse-fall-list"></div>
+          <button class="add-line-btn" onclick="addLine('horse-fall-list','horse-fall-total')"><span class="plus">+</span> Add item</button>
+          <div class="total-row"><span class="total-label">🍂 Fall Total</span><span class="total-val" id="horse-fall-total">$0.00</span></div>
+        </div>
+        <div id="season-winter" class="season-panel">
+          <div class="budget-list" id="horse-winter-list"></div>
+          <button class="add-line-btn" onclick="addLine('horse-winter-list','horse-winter-total')"><span class="plus">+</span> Add item</button>
+          <div class="total-row"><span class="total-label">❄️ Winter Total</span><span class="total-val" id="horse-winter-total">$0.00</span></div>
+        </div>
+        <div id="season-spring" class="season-panel">
+          <div class="budget-list" id="horse-spring-list"></div>
+          <button class="add-line-btn" onclick="addLine('horse-spring-list','horse-spring-total')"><span class="plus">+</span> Add item</button>
+          <div class="total-row"><span class="total-label">🌱 Spring Total</span><span class="total-val" id="horse-spring-total">$0.00</span></div>
+        </div>
+        <div class="info-box"><span>🌿</span><span>Horstmeyer Farm & Garden · Sanford FL · (407) 322-1235 · T/A 2-string $16.99/bale · Coastal $9.99/bale · Free delivery $400+</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Flexible Spending</div>
+      <div class="card">
+        <div class="budget-list" id="flex-list"></div>
+        <button class="add-line-btn" onclick="addLine('flex-list','flex-total')"><span class="plus">+</span> Add category</button>
+        <div class="total-row"><span class="total-label">Total Flexible</span><span class="total-val" id="flex-total">$0.00</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Savings & Goals</div>
+      <div class="card">
+        <div class="savings-grid">
+          <div class="savings-item"><div class="savings-icon">🐴</div><div class="savings-name">Riding Lessons</div><div class="savings-amt">$300/mo</div></div>
+          <div class="savings-item"><div class="savings-icon">✈️</div><div class="savings-name">Vacation Fund</div><div class="savings-amt">$200/mo</div><div class="savings-note">~$2,400/year</div></div>
+          <div class="savings-item"><div class="savings-icon">💳</div><div class="savings-name">CC Buffer</div><div class="savings-amt">$150/mo</div></div>
+          <div class="savings-item"><div class="savings-icon">📈</div><div class="savings-name">Marcus HYSA</div><div class="savings-amt">$200/mo</div><div class="savings-note">~4.4% APY</div></div>
+        </div>
+        <div class="total-row"><span class="total-label">Total Savings & Goals</span><span class="total-val">$900.00</span></div>
+      </div>
+    </div>
+    <div class="callout callout-green"><div class="callout-text green"><strong>Monthly Buffer</strong>After all expenses, horse, flexible & savings</div><div class="callout-amount green">~$286<small>/ month</small></div></div>
+    <div class="callout callout-moon"><div class="callout-text moon"><strong>Annual Savings & Goals</strong>Lessons + vacation + HYSA + vet + buffer</div><div class="callout-amount moon">~$14,232<small>/ year</small></div></div>
+  </div>
+  <div class="footer">Shariti's Command Center · 🌙</div>
+</div>
+
+<!-- GYPSY -->
+<div class="page" id="gypsy">
+  <button class="back-btn" onclick="showPage('home')">← Back to Home</button>
+  <div class="page-header">
+    <div class="page-eyebrow">Winter Garden Equestrian · Kissimmee, FL</div>
+    <h2 class="page-title">🐴 <em>Gypsy</em> 🌙</h2>
+  </div>
+  <div class="content">
+    <div class="gypsy-hero">
+      <div class="gypsy-tag">🩵 BLM Mustang Mare</div>
+      <div class="gypsy-name">Gypsy 🌙</div>
+      <div class="gypsy-sub">Winter Garden Equestrian · Kissimmee, FL</div>
+      <div class="gypsy-stats">
+        <div class="stat-item"><span class="stat-val">8</span><div class="stat-lbl">Years Old</div></div>
+        <div class="stat-item"><span class="stat-val">940</span><div class="stat-lbl">Pounds</div></div>
+        <div class="stat-item"><span class="stat-val">14.2H</span><div class="stat-lbl">Height</div></div>
+      </div>
+      <div style="margin-top:14px;font-size:14px;color:var(--muted);font-style:italic;">Born July 5, 2017 · 🎂 Next birthday in July</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Care Team</div>
+      <div class="care-grid">
+        <div class="care-item"><div class="care-role">Veterinarian</div><div class="care-name">Dr. Danielle McCallister</div><div class="care-detail">Orlando Equine Veterinary Care<br>9311 Charles E Limpus Rd, Orlando FL<br>(407) 489-7270</div></div>
+        <div class="care-item"><div class="care-role">Chiropractor</div><div class="care-name">Dr. Raquel</div><div class="care-detail">Palmetto Chiropractor<br>$140/visit · Frequency TBD</div></div>
+        <div class="care-item"><div class="care-role">Nutritionist</div><div class="care-name">Connie</div><div class="care-detail">17 Hands Nutrition<br>Consult post-purchase</div></div>
+        <div class="care-item"><div class="care-role">Insurance</div><div class="care-name">Hartford Insurance</div><div class="care-detail">Major Medical $7,500<br>+ Emergency Colic Surgery<br>~$31/mo · $373/year</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Diet & Nutrition</div>
+      <div class="diet-tbd">
+        <div class="diet-tbd-icon">🌿</div>
+        <div class="diet-tbd-title">Diet Protocol — TBD</div>
+        <div class="diet-tbd-text">Full diet plan to be confirmed with <strong>Connie at 17 Hands Nutrition</strong> after purchase.<br>Budget placeholder: ~$60/month.</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Psyllium Protocol</div><span class="badge badge-green">Year Round · Florida</span></div>
+        <div class="protocol-grid">
+          <div class="protocol-item"><div class="protocol-val">7 days</div><div class="protocol-lbl">ON every month</div></div>
+          <div class="protocol-item"><div class="protocol-val">3 weeks</div><div class="protocol-lbl">OFF every month</div></div>
+          <div class="protocol-item"><div class="protocol-val">2–3 tbsp</div><div class="protocol-lbl">Daily dose</div></div>
+          <div class="protocol-item"><div class="protocol-val">~$10</div><div class="protocol-lbl">Per month</div></div>
+        </div>
+        <div class="warn-box"><span>⚠️</span><span>Non-negotiable for Florida sandy pasture. Prevents sand colic. Use unflavored Metamucil or SandClear.</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Dewormer Schedule 🪱</div>
+      <div class="card">
+        <div class="deworm-list">
+          <div class="deworm-item checked" onclick="toggleDeworm(this)"><div class="deworm-checkbox">✓</div><div class="deworm-label">March 2026</div><div class="deworm-date">Completed</div></div>
+          <div class="deworm-item" onclick="toggleDeworm(this)"><div class="deworm-checkbox"></div><div class="deworm-label">June 2026</div><div class="deworm-date">Due Jun 1</div></div>
+          <div class="deworm-item" onclick="toggleDeworm(this)"><div class="deworm-checkbox"></div><div class="deworm-label">September 2026</div><div class="deworm-date">Due Sep 1</div></div>
+          <div class="deworm-item" onclick="toggleDeworm(this)"><div class="deworm-checkbox"></div><div class="deworm-label">December 2026</div><div class="deworm-date">Due Dec 1</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Vet Calendar 2026</div>
+      <div class="card">
+        <div class="vet-list">
+          <div class="vet-item done"><div class="vet-month">MAR<br>20</div><div class="vet-divider"></div><div class="vet-content"><div class="vet-title">Spring Vaccines</div><div class="vet-detail">EWT · West Nile · Rhino Flu · Exam</div></div><div class="vet-cost">$170 ✅</div></div>
+          <div class="vet-item"><div class="vet-month">JUL</div><div class="vet-divider"></div><div class="vet-content"><div class="vet-title">Dental Float</div><div class="vet-detail">Annual · may need sedation (+$25–50)</div></div><div class="vet-cost">~$150–$250</div></div>
+          <div class="vet-item"><div class="vet-month">SEP<br>18</div><div class="vet-divider"></div><div class="vet-content"><div class="vet-title">Fall Boosters</div><div class="vet-detail">EWT · West Nile · Rhino Flu Calvenza</div></div><div class="vet-cost">~$140–$155</div></div>
+          <div class="vet-item"><div class="vet-month">NOV<br>11</div><div class="vet-divider"></div><div class="vet-content"><div class="vet-title">Strangles + Coggins</div><div class="vet-detail">Pinnacle IN · Coggins EIA AGID</div></div><div class="vet-cost">~$100–$130</div></div>
+        </div>
+        <div class="info-box"><span>ℹ️</span><span>Farm call split 4+ ways = ~$15 your share · Dr. McCallister · Orlando Equine · (407) 489-7270</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Show Name Ideas ⭐️</div>
+      <div class="card">
+        <div class="show-name-hint">Tap to vote for your favorite</div>
+        <div class="sync-status" id="show-name-sync">Loading...</div>
+        <div class="show-names" id="show-names-list">
+          <div class="show-name-item" data-name="Midnight Gypsy Moon" onclick="selectShowName(this)">
+            <div class="show-name-left"><span class="show-name-star">✦</span> Midnight Gypsy Moon</div>
+            <span class="vote-badge">✓ Selected</span>
+          </div>
+          <div class="show-name-item" data-name="Black Velvet Gypsy" onclick="selectShowName(this)">
+            <div class="show-name-left"><span class="show-name-star">✦</span> Black Velvet Gypsy</div>
+            <span class="vote-badge">✓ Selected</span>
+          </div>
+          <div class="show-name-item" data-name="Velvet Underground" onclick="selectShowName(this)">
+            <div class="show-name-left"><span class="show-name-star">✦</span> Velvet Underground</div>
+            <span class="vote-badge">✓ Selected</span>
+          </div>
+          <div class="show-name-item" data-name="Gypsy Stardust" onclick="selectShowName(this)">
+            <div class="show-name-left"><span class="show-name-star">✦</span> Gypsy Stardust</div>
+            <span class="vote-badge">✓ Selected</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Shariti's Command Center · 🌙</div>
+</div>
+
+<!-- THERAPY -->
+<div class="page" id="therapy">
+  <button class="back-btn" onclick="showPage('home')">← Back to Home</button>
+  <div class="page-header">
+    <div class="page-eyebrow">A Two Year Journey</div>
+    <h2 class="page-title">🌿 Equine Therapy <em>Journey</em></h2>
+  </div>
+  <div class="content">
+
+    <div class="therapy-hero">
+      <div class="therapy-tag">Gypsy & Me</div>
+      <div class="therapy-title">The Roadmap</div>
+      <div class="therapy-sub">A guided path toward using your bond with Gypsy to help others — grounded in education, patience, and the connection you've already built.</div>
+      <div class="therapy-progress-wrap"><div class="therapy-progress-fill" id="therapyProgressFill"></div></div>
+      <div class="therapy-progress-label" id="therapyProgressLabel">0 of 0 complete</div>
+    </div>
+
+    <div class="sync-status" id="therapy-sync">Loading...</div>
+
+    <!-- Phase 1 -->
+    <div class="phase-block" id="tphase1">
+      <div class="phase-header-row">
+        <div class="phase-marker">1</div>
+        <div class="phase-info-wrap">
+          <div class="phase-timeline-lbl">Now — Month 6</div>
+          <div class="phase-title-txt">Foundation — Horse & Self</div>
+        </div>
+        <div class="phase-count-badge" id="tcount-1">0/7</div>
+      </div>
+      <div class="therapy-items">
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Get Gypsy healthy — treat ulcers, resolve lameness<span class="therapy-tag-pill tag-key">Priority</span></div><div class="therapy-item-note">Everything starts here. A healthy horse is a therapy horse.</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Complete ownership transfer and get insurance</div><div class="therapy-item-note">You need to own her before any formal program involvement</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Establish consistent groundwork routine<span class="therapy-tag-pill tag-key">Foundation</span></div><div class="therapy-item-note">Daily handling, leading, desensitization — this IS therapy horse training</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Research PATH International<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">pathintl.org — premier equine therapy org. Read their horse standards and requirements</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Get CPR and first aid certified<span class="therapy-tag-pill tag-paid">~$50–100</span></div><div class="therapy-item-note">Required for most programs. Red Cross offers courses regularly</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Read foundational books on equine assisted learning<span class="therapy-tag-pill tag-free">Library</span></div><div class="therapy-item-note">"Horses Don't Lie" by Chris Irwin · "The Tao of Equus" by Linda Kohanov</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Join online equine therapy communities<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Facebook groups, Reddit r/equinetherapy — learn from practitioners already doing this work</div></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-block" id="tphase2">
+      <div class="phase-header-row">
+        <div class="phase-marker">2</div>
+        <div class="phase-info-wrap">
+          <div class="phase-timeline-lbl">Month 6 — Month 12</div>
+          <div class="phase-title-txt">Education & Training</div>
+        </div>
+        <div class="phase-count-badge" id="tcount-2">0/7</div>
+      </div>
+      <div class="therapy-items">
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Complete an Equine Assisted Learning intro course<span class="therapy-tag-pill tag-paid">~$200–500</span></div><div class="therapy-item-note">EAGALA and OK Corral Series both offer online intro courses</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Volunteer at a local therapeutic riding center<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Invaluable hands-on experience. Search PATH centers near Kissimmee</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Complete Gypsy's temperament evaluation<span class="therapy-tag-pill tag-key">Key Step</span></div><div class="therapy-item-note">Most programs require a formal horse temperament assessment</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Study natural horsemanship principles<span class="therapy-tag-pill tag-free">Free–Low Cost</span></div><div class="therapy-item-note">Parelli, Clinton Anderson YouTube — groundwork skills translate directly to therapy work</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Research liability insurance for equine activities<span class="therapy-tag-pill tag-paid">~$300–500/yr</span></div><div class="therapy-item-note">Separate from horse insurance. Needed if people interact with Gypsy in any structured way</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Connect with a licensed mental health professional<span class="therapy-tag-pill tag-key">Partnership</span></div><div class="therapy-item-note">EAP requires a licensed professional partner. EAL does not — but a partnership opens more doors</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Document Gypsy's training progress and temperament<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Keep a journal of her responses to different people, environments and situations</div></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-block" id="tphase3">
+      <div class="phase-header-row">
+        <div class="phase-marker">3</div>
+        <div class="phase-info-wrap">
+          <div class="phase-timeline-lbl">Month 12 — Month 18</div>
+          <div class="phase-title-txt">Building Your Practice</div>
+        </div>
+        <div class="phase-count-badge" id="tcount-3">0/6</div>
+      </div>
+      <div class="therapy-items">
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Complete EAGALA foundational training<span class="therapy-tag-pill tag-paid">~$1,000–1,500</span></div><div class="therapy-item-note">The gold standard EAL/EAP certification. Can be done without a license for the equine specialist role</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Shadow experienced equine therapy practitioners<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Ask PATH centers or EAGALA practitioners if you can observe sessions</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Design simple groundwork based activities<span class="therapy-tag-pill tag-key">Creative</span></div><div class="therapy-item-note">Develop your own session activities using Gypsy's strengths and personality</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Consult a lawyer about liability and business structure<span class="therapy-tag-pill tag-paid">~$100–300</span></div><div class="therapy-item-note">Even informal sessions need liability protection. An LLC may make sense</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Identify your target population<span class="therapy-tag-pill tag-key">Focus</span></div><div class="therapy-item-note">Children, veterans, anxiety/trauma — Gypsy's calm energy suits anxiety and trauma work beautifully</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Attend an equine therapy conference or workshop<span class="therapy-tag-pill tag-paid">~$200–500</span></div><div class="therapy-item-note">EAGALA annual conference, PATH Intl symposium — incredible networking and learning</div></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase-block" id="tphase4">
+      <div class="phase-header-row">
+        <div class="phase-marker">4</div>
+        <div class="phase-info-wrap">
+          <div class="phase-timeline-lbl">Month 18 — Year 2+</div>
+          <div class="phase-title-txt">Launching & Growing</div>
+        </div>
+        <div class="phase-count-badge" id="tcount-4">0/6</div>
+      </div>
+      <div class="therapy-items">
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Partner with an existing therapy center or wellness practice<span class="therapy-tag-pill tag-key">Collaboration</span></div><div class="therapy-item-note">Rather than starting from scratch, bring Gypsy to an established program</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Formalize liability waivers and participant agreements<span class="therapy-tag-pill tag-paid">~$200–400</span></div><div class="therapy-item-note">Non-negotiable before anyone interacts with Gypsy in a structured program context</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Run pilot sessions with trusted friends or family<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Low stakes practice runs. Observe how Gypsy responds to different people and energy</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Pursue continuing education annually<span class="therapy-tag-pill tag-paid">Ongoing</span></div><div class="therapy-item-note">The field evolves constantly. Annual workshops keep your skills current</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Document and evaluate your sessions<span class="therapy-tag-pill tag-free">Free</span></div><div class="therapy-item-note">Keep records of activities, participant responses and Gypsy's behavior</div></div></div>
+        <div class="therapy-item" onclick="toggleTherapy(this)"><div class="therapy-check"></div><div class="therapy-item-content"><div class="therapy-item-label">Explore nonprofit or grant funding options<span class="therapy-tag-pill tag-free">Free to research</span></div><div class="therapy-item-note">Equine therapy programs qualify for various grants — could offset Gypsy's costs long term</div></div></div>
+      </div>
+    </div>
+
+    <div class="therapy-quote">
+      <p>"The horse is a mirror to your soul — and sometimes you might not like what you see.<br>Other times, it's the most beautiful thing you've ever seen."<br><span style="font-size:13px;letter-spacing:1px;font-style:normal;font-family:'DM Mono',monospace;color:var(--muted)">— Buck Brannaman</span></p>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="reset-btn" onclick="resetTherapy()">Reset Progress</button>
+    </div>
+
+  </div>
+  <div class="footer">Shariti's Command Center · 🌙</div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="admin">
+  <button class="back-btn" onclick="showPage('home')">← Back to Home</button>
+  <div class="page-header">
+    <div class="page-eyebrow">2026</div>
+    <h2 class="page-title">📅 Life <em>Admin</em></h2>
+  </div>
+  <div class="content">
+    <div class="section">
+      <div class="section-label">Renewals & Reminders</div>
+      <div class="card">
+        <div class="bill-list">
+          <div class="bill-item"><span class="bill-name">📱 Mint Mobile · Phone</span><div class="bill-right"><span class="bill-date">Every 3 months · $129.39</span></div></div>
+          <div class="bill-item"><span class="bill-name">🚗 Progressive · Auto Insurance</span><div class="bill-right"><span class="bill-date">Nov 16, 2026</span><span class="bill-flag flag-amber">Renews</span></div></div>
+          <div class="bill-item"><span class="bill-name">📺 Apple TV</span><div class="bill-right"><span class="bill-date">End of F1 Season</span><span class="bill-flag flag-rust">Cancel</span></div></div>
+          <div class="bill-item"><span class="bill-name">🐴 Hartford Horse Insurance</span><div class="bill-right"><span class="bill-date">Annual · $373/year</span><span class="bill-flag flag-amber">After healthy</span></div></div>
+          <div class="bill-item"><span class="bill-name">💉 Dental Float</span><div class="bill-right"><span class="bill-date">July 2026</span><span class="bill-flag flag-amber">~$150–$250</span></div></div>
+          <div class="bill-item"><span class="bill-name">💉 Fall Boosters</span><div class="bill-right"><span class="bill-date">Sep 18, 2026</span><span class="bill-flag flag-amber">~$140–$155</span></div></div>
+          <div class="bill-item"><span class="bill-name">💉 Strangles + Coggins</span><div class="bill-right"><span class="bill-date">Nov 11, 2026</span><span class="bill-flag flag-amber">~$100–$130</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Shariti's Command Center · 🌙</div>
 </div>
 
 <script>
-// ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
-const SUPA_URL = 'https://kfxqqjydkaykebbwlbbh.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeHFxanlka2F5a2ViYndsYmJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2Nzk3NDEsImV4cCI6MjA5NDI1NTc0MX0.IHYVCoIUfEZ9Sj9b3E7u57ZBbnvy4cVBUjDRPW2UvOo';
+// ═══════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://kfxqqjydkaykebbwlbbh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_roBhQRgwLnnr-n9x2hZpbw_S9JJ_mI3';
 
-async function supaGet(id) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/schedule?id=eq.${encodeURIComponent(id)}&select=data`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  const rows = await res.json();
-  return rows && rows.length > 0 ? JSON.parse(rows[0].data) : null;
+async function sbGet(key) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_data?key=eq.${encodeURIComponent(key)}&select=value`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    return data && data[0] ? JSON.parse(data[0].value) : null;
+  } catch(e) { return null; }
 }
 
-async function supaSet(id, data) {
-  await fetch(`${SUPA_URL}/rest/v1/schedule`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates'
-    },
-    body: JSON.stringify({ id, data: JSON.stringify(data) })
-  });
+async function sbSet(key, value) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/user_data`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ key, value: JSON.stringify(value) })
+    });
+  } catch(e) {}
 }
 
-const HYGS=[
-  {name:'Lisa',    days:[0,1,2,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
-  {name:'Tara',    days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Full-time'},
-  {name:'Liz',     days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
-  {name:'Amber',   days:[0,1,2,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
-  {name:'Carrie',  days:[0,1,2,3,4],halfDays:[2,4],noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
-  {name:'Susan',   days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'fixed', fridayFixed:true, type:'Full-time'},
-  {name:'Michelle',days:[0,1,2,3,4],halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Full-time'},
-  {name:'Laurie',  days:[1,2,3,4],  halfDays:[4],  noRot:false,friday:'rotate',fridayFixed:false,type:'Part-time'},
-  {name:'Helen',   days:[3,4],      halfDays:[4],  noRot:true, friday:'rotate',fridayFixed:false,type:'Fixed (TH)'},
+// ═══════════════════════════════════════
+// PAGE NAV
+// ═══════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showSeason(season, el) {
+  document.querySelectorAll('.season-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.season-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('season-' + season).classList.add('active');
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// DEWORMER
+// ═══════════════════════════════════════
+function toggleDeworm(item) {
+  item.classList.toggle('checked');
+  const box = item.querySelector('.deworm-checkbox');
+  const date = item.querySelector('.deworm-date');
+  if (item.classList.contains('checked')) {
+    box.textContent = '✓'; date.textContent = 'Completed';
+  } else {
+    box.textContent = '';
+    const lbl = item.querySelector('.deworm-label').textContent;
+    if (lbl.includes('June')) date.textContent = 'Due Jun 1';
+    else if (lbl.includes('September')) date.textContent = 'Due Sep 1';
+    else if (lbl.includes('December')) date.textContent = 'Due Dec 1';
+  }
+}
+
+// ═══════════════════════════════════════
+// BUDGET
+// ═══════════════════════════════════════
+function recalcTotal(totalId) {
+  const el = document.getElementById(totalId);
+  if (!el) return;
+  const panel = el.closest('.season-panel') || el.closest('.card');
+  if (!panel) return;
+  let sum = 0;
+  panel.querySelectorAll('.budget-amount-input').forEach(i => { sum += parseFloat(i.value) || 0; });
+  el.textContent = '$' + sum.toFixed(2);
+}
+
+function makeLine(label, amount, note, totalId) {
+  const line = document.createElement('div');
+  line.className = 'budget-line';
+  line.innerHTML = `
+    <div class="budget-label-wrap">
+      <input class="budget-label-input" type="text" value="${label}" placeholder="Expense name">
+      <input class="budget-note-input" type="text" value="${note||''}" placeholder="Note (optional)">
+    </div>
+    <input class="budget-amount-input" type="number" step="0.01" value="${amount}" placeholder="0.00">
+    <button class="delete-btn" title="Remove">×</button>
+  `;
+  line.querySelector('.budget-amount-input').addEventListener('input', () => recalcTotal(totalId));
+  line.querySelector('.delete-btn').addEventListener('click', () => { line.remove(); recalcTotal(totalId); });
+  return line;
+}
+
+function addLine(listId, totalId) {
+  const list = document.getElementById(listId);
+  const line = makeLine('', 0, '', totalId);
+  list.appendChild(line);
+  line.querySelector('.budget-label-input').focus();
+}
+
+function populate(listId, totalId, items) {
+  const list = document.getElementById(listId);
+  items.forEach(([l,a,n]) => list.appendChild(makeLine(l, a, n||'', totalId)));
+  recalcTotal(totalId);
+}
+
+const base = [
+  ['Board (incl. feeding fee)', 425, ''],
+  ['Purina Enrich Plus (TBD)', 33, '~1 bag/month'],
+  ['Metamucil · 7 days on/3 weeks off', 10, ''],
+  ['Farrier · every 5 weeks', 43, ''],
+  ['Insurance · Hartford', 31, ''],
 ];
 
-// Friday: Susan/Liz/Carrie fixed, 6 rotate for 3 slots
-const FRI_FIXED  = ['Susan','Liz','Carrie'];
-const FRI_ROTATE = ['Michelle','Laurie','Tara','Lisa','Amber','Helen'];
-const FRI_SLOTS  = 3;
-function friqKey(){return 'hyg_friq';}
+populate('fixed-list','fixed-total',[
+  ['Auto payment', 667, 'JP Morgan Chase'],
+  ['Auto insurance · Progressive', 143, 'Renews Nov 16, 2026'],
+  ['Student loans', 99, ''],
+  ['Taxes', 100, ''],
+  ['Phone · Mint Mobile', 43.13, '$129.39 every 3 months'],
+  ['Tolls', 120, ''],
+  ['Apple Music', 10.99, ''],
+  ['Apple TV', 12.99, 'Cancel end of F1 season'],
+  ['iCloud', 9.99, ''],
+  ['Monarch Budget', 14.99, ''],
+  ['Wyze Cam Plus', 9.99, ''],
+]);
+populate('horse-summer-list','horse-summer-total',[...base,['Hay · T/A + Coastal · ~12–14 bales', 162, 'Horstmeyer Farm']]);
+populate('horse-fall-list','horse-fall-total',[...base,['Hay · T/A + Coastal · ~14–16 bales', 189, 'Horstmeyer Farm']]);
+populate('horse-winter-list','horse-winter-total',[...base,['Hay · T/A + Coastal · ~16–18 bales', 216, 'Horstmeyer Farm']]);
+populate('horse-spring-list','horse-spring-total',[...base,['Hay · T/A + Coastal · ~14–16 bales', 189, 'Horstmeyer Farm']]);
+populate('flex-list','flex-total',[
+  ['Groceries', 300, ''],
+  ['Dining & Bars', 150, ''],
+  ['Shopping', 150, ''],
+  ['Horse miscellaneous', 75, 'Tack, supplies, extras'],
+]);
 
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DNAMES=['Monday','Tuesday','Wednesday','Thursday','Friday'];
-const DSHORT=['Mon','Tue','Wed','Thu','Fri'];
-
-// Pay period anchor: June 6, 2026. Every 14 days after that.
-const PP_ANCHOR=new Date(2026,4,27); // May 27 2026
-
-function getPayPeriodIndex(date){
-  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
-  const diff=Math.floor((d-PP_ANCHOR)/86400000);
-  if(diff<0) return -1; // before first period = period 0 (partial)
-  return Math.floor(diff/14)+1;
-}
-
-function getPayPeriodLabel(idx, short=false){
-  if(idx===0) return short ? 'Pre Jun 6' : 'Before Jun 6';
-  const start=new Date(PP_ANCHOR); start.setDate(start.getDate()+(idx-1)*14);
-  const end=new Date(start); end.setDate(end.getDate()+13);
-  const fmt=d=>`${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
-  if(short) return `${fmt(start)}–${fmt(end)}`;
-  return `${fmt(start)} – ${fmt(end)}`;
-}
-
-// Off slots per dow: {ft, pt}
-const OFF_SLOTS=[{ft:1,pt:0},{ft:1,pt:1},{ft:1,pt:0},{ft:1,pt:0},{ft:0,pt:0}];
-const FT_NAMES=['Tara','Liz','Carrie','Susan','Michelle'];
-const PT_NAMES=['Lisa','Amber','Laurie'];
-
-let curYear=2026,curMonth=5;
-let schedData={};
-let editKey=null,editTmp={};
-let activePP='all'; // 'all' or period index number
-
-function lsKey(y,m){return `hygSched_${y}_${m}`;}
-function ftqKey(){return 'hyg_ftq2';}
-function ptqKey(){return 'hyg_ptq2';}
-
-function loadQ(k,def){try{const s=localStorage.getItem(k);return s?JSON.parse(s):[...def];}catch(e){return[...def];}}
-function saveQ(k,q){try{localStorage.setItem(k,JSON.stringify(q));}catch(e){}}
-
-async function loadMonth(y,m){
-  try{
-    const remote = await supaGet(lsKey(y,m));
-    if(remote){ schedData=remote; return; }
-  }catch(e){ console.warn('Supabase load failed, falling back to localStorage',e); }
-  // Fallback to localStorage
-  try{const s=localStorage.getItem(lsKey(y,m));if(s){schedData=JSON.parse(s);return;}}catch(e){}
-  schedData={};
-  buildDefault(y,m);
-}
-async function saveMonth(y,m){
-  try{ await supaSet(lsKey(y,m), schedData); }catch(e){ console.warn('Supabase save failed',e); }
-  try{ localStorage.setItem(lsKey(y,m),JSON.stringify(schedData)); }catch(e){}
-}
-
-function getWeeks(y,m){
-  const first=new Date(y,m,1);
-  let sd=first.getDay();if(sd===0)sd=7;
-  const fm=new Date(y,m,1-(sd-1));
-  const weeks=[];let cur=new Date(fm);
-  while(true){
-    const wk=[];let any=false;
-    for(let d=0;d<5;d++){const dt=new Date(cur);dt.setDate(cur.getDate()+d);if(dt.getMonth()===m){wk.push(dt.getDate());any=true;}else wk.push(null);}
-    if(!any)break;
-    weeks.push(wk);
-    cur.setDate(cur.getDate()+7);
-    if(cur.getMonth()>m&&cur.getFullYear()>=y)break;
+// ═══════════════════════════════════════
+// SHOW NAMES — Supabase
+// ═══════════════════════════════════════
+async function loadShowName() {
+  const el = document.getElementById('show-name-sync');
+  el.textContent = 'Syncing...';
+  const saved = await sbGet('show_name_selected');
+  if (saved) {
+    document.querySelectorAll('.show-name-item').forEach(item => {
+      item.classList.toggle('selected', item.dataset.name === saved);
+    });
   }
-  return weeks;
+  el.textContent = saved ? `✓ Saved: ${saved}` : 'Tap to select a favorite';
 }
 
-function dayKey(y,m,date){return `${y}-${m}-${date}`;}
-
-function buildDefault(y,m){
-  const drOut=(y===2026&&m===5)?new Set([15,25,29]):new Set();
-  const ftQ=loadQ(ftqKey(),FT_NAMES);
-  const ptQ=loadQ(ptqKey(),PT_NAMES);
-  const friQ=loadQ(friqKey(),[...FRI_ROTATE]);
-  const weeks=getWeeks(y,m);
-  weeks.forEach(week=>{
-    week.forEach((date,dow)=>{
-      if(!date)return;
-      const key=dayKey(y,m,date);
-      const isDrOut=drOut.has(date);
-      const isFriday=dow===4;
-      const assign={};
-
-      if(isFriday){
-        if(isDrOut){
-          HYGS.forEach(h=>{ assign[h.name]=h.days.includes(4)?'drout':'nowork'; });
-        } else {
-          // Pick 3 from rotation queue
-          let friWorking=[];
-          for(let i=0;i<friQ.length&&friWorking.length<FRI_SLOTS;i++){
-            friWorking.push(friQ[i]);
-          }
-          friWorking.forEach(n=>{friQ.push(friQ.splice(friQ.indexOf(n),1)[0]);});
-          HYGS.forEach(h=>{
-            if(h.fridayFixed){assign[h.name]='half';return;}
-            if(h.friday==='rotate'){
-              assign[h.name]=friWorking.includes(h.name)?'half':'off';
-            } else {
-              assign[h.name]='nowork';
-            }
-          });
-        }
-        schedData[key]=assign;
-        return;
-      }
-
-      // Mon–Thu
-      const slots=OFF_SLOTS[dow];
-      let offFT=[],offPT=[];
-      if(!isDrOut){
-        for(let i=0;i<ftQ.length&&offFT.length<slots.ft;i++){
-          const h=HYGS.find(x=>x.name===ftQ[i]);
-          if(h&&h.days.includes(dow)){offFT.push(ftQ[i]);}
-        }
-        offFT.forEach(n=>{ftQ.push(ftQ.splice(ftQ.indexOf(n),1)[0]);});
-        for(let i=0;i<ptQ.length&&offPT.length<slots.pt;i++){
-          const h=HYGS.find(x=>x.name===ptQ[i]);
-          if(h&&h.days.includes(dow)){offPT.push(ptQ[i]);}
-        }
-        offPT.forEach(n=>{ptQ.push(ptQ.splice(ptQ.indexOf(n),1)[0]);});
-      }
-      HYGS.forEach(h=>{
-        if(!h.days.includes(dow)){assign[h.name]='nowork';return;}
-        if(isDrOut){assign[h.name]='drout';return;}
-        if(h.noRot&&dow===3){assign[h.name]='helen';return;}
-        if(h.noRot){assign[h.name]='nowork';return;}
-        if(offFT.includes(h.name)||offPT.includes(h.name)){assign[h.name]='off';return;}
-        if(h.halfDays.includes(dow)){assign[h.name]='half';return;}
-        assign[h.name]='work';
-      });
-      schedData[key]=assign;
-    });
-  });
-  saveQ(ftqKey(),ftQ);
-  saveQ(ptqKey(),ptQ);
-  saveQ(friqKey(),friQ);
-}
-
-function renderCal(){
-  document.getElementById('cal-title').textContent=`${MONTHS[curMonth]} ${curYear}`;
-  const weeks=getWeeks(curYear,curMonth);
-  let html='';
-  weeks.forEach(week=>{
-    week.forEach((date,dow)=>{
-      if(date===null){html+=`<div class="cal-cell empty"></div>`;return;}
-      const key=dayKey(curYear,curMonth,date);
-      const assign=schedData[key]||{};
-      const dayMeta=assign['__day__']||'normal';
-      const isDrOut=dayMeta==='drout'||Object.values(assign).every(v=>v==='drout'||v==='nowork');
-      const isClosed=dayMeta==='closed';
-      const isFri=dow===4;
-      let cls='cal-cell'+(isFri?' friday':'')+(isDrOut||isClosed?' drout':'');
-      const wc=HYGS.filter(h=>['work','half','helen'].includes(assign[h.name])).length;
-      let inner=`<div class="date-lbl"><span>${date}</span>${isDrOut?'<span class="drout-lbl">Dr out</span>':isClosed?'<span class="drout-lbl" style="background:#fce8e8;color:#8b2a1c;">Closed</span>':`<span class="w-count">${wc} in</span>`}</div>`;
-      if(isClosed){
-        inner+=`<div class="day-status-bar dsb-closed">🚫 Office Closed</div>`;
-        inner+=`<div class="print-off-box"><div class="print-off-box-label" style="background:#8b2a1c">CLOSED</div><div class="print-off-box-names" style="color:#8b2a1c">Office Closed</div></div>`;
-      } else if(isDrOut){
-        inner+=`<div class="day-status-bar dsb-drout">🩺 Dr Out</div>`;
-        inner+=`<div class="print-off-box"><div class="print-off-box-label" style="background:#555">DR OUT</div><div class="print-off-box-names" style="color:#555">Dr Out</div></div>`;
-      } else {
-        const offNames=[];
-        HYGS.forEach(h=>{
-          const s=assign[h.name];
-          if(!s||s==='nowork'||s==='drout')return;
-          const cc=s==='helen'?'c-helen':s==='off'?'c-off':s==='half'?'c-half':'c-work';
-          const sf=s==='half'?' ½':s==='off'?' off':'';
-          inner+=`<span class="chip ${cc}">${h.name}${sf}</span>`;
-          if(s==='off') offNames.push(h.name);
-        });
-        // Print-only: OFF box with label, or All in
-        if(offNames.length>0){
-          inner+=`<div class="print-off-box"><div class="print-off-box-label">OFF</div><div class="print-off-box-names">${offNames.join('<br>')}</div></div>`;
-        } else {
-          inner+=`<span class="print-all-in">✓ All in</span>`;
-        }
-        inner+=`<span class="print-working-count">${wc} working</span>`;
-      }
-      html+=`<div class="${cls}" onclick="openModal('${key}',${date},${dow})">${inner}</div>`;
-    });
-  });
-  document.getElementById('cal-body').innerHTML=html;
-}
-
-function getPayPeriods(){
-  // Find all unique pay period indices in this month
-  const weeks=getWeeks(curYear,curMonth);
-  const seen=new Set();
-  weeks.forEach(week=>{
-    week.forEach((date,dow)=>{
-      if(!date)return;
-      const d=new Date(curYear,curMonth,date);
-      const idx=getPayPeriodIndex(d);
-      seen.add(idx<0?0:idx);
-    });
-  });
-  return Array.from(seen).sort((a,b)=>a-b);
-}
-
-function renderHrs(){
-  document.getElementById('hrs-title').textContent=`${MONTHS[curMonth]} ${curYear} — Hours tally`;
-  const weeks=getWeeks(curYear,curMonth);
-  const periods=getPayPeriods();
-
-  // Build period pills
-  const banner=document.getElementById('pp-banner');
-  let pillHtml=`<button class="pp-pill all ${activePP==='all'?'active':''}" onclick="setPP('all',this)">Full month</button>`;
-  periods.forEach(idx=>{
-    const lbl=getPayPeriodLabel(idx);
-    pillHtml+=`<button class="pp-pill ${activePP===idx?'active':''}" onclick="setPP(${idx},this)">${lbl}</button>`;
-  });
-  banner.innerHTML=pillHtml;
-
-  // Compute counts per person per period and overall
-  const monthly={};
-  const byPeriod={};
-  HYGS.forEach(h=>{
-    monthly[h.name]={w:0,o:0,hf:0};
-    periods.forEach(idx=>{ byPeriod[`${h.name}_${idx}`]={w:0,o:0,hf:0}; });
-  });
-
-  weeks.forEach(week=>{
-    week.forEach((date,dow)=>{
-      if(!date)return;
-      const d=new Date(curYear,curMonth,date);
-      const pIdx=getPayPeriodIndex(d)<0?0:getPayPeriodIndex(d);
-      const assign=schedData[dayKey(curYear,curMonth,date)]||{};
-      HYGS.forEach(h=>{
-        const s=assign[h.name];
-        if(s==='work'||s==='helen'){monthly[h.name].w++;byPeriod[`${h.name}_${pIdx}`].w++;}
-        else if(s==='half'){monthly[h.name].w++;monthly[h.name].hf++;byPeriod[`${h.name}_${pIdx}`].w++;byPeriod[`${h.name}_${pIdx}`].hf++;}
-        else if(s==='off'){monthly[h.name].o++;byPeriod[`${h.name}_${pIdx}`].o++;}
-      });
-    });
-  });
-
-  function hrs(c){return(c.w-c.hf)*8+c.hf*6;}
-
-  // Determine what to show
-  const showPeriods = activePP==='all' ? periods : [activePP];
-
-  // Alternating colors per period
-  const PP_COLORS=['a','b','c','a','b','c'];
-
-  // Build table header - single row with period label + sub-cols grouped
-  let thead='<tr><th style="min-width:60px;background:var(--navy);color:white;font-size:0.72rem;padding:8px 8px">NAME</th>';
-  showPeriods.forEach((idx,pi)=>{
-    const col=PP_COLORS[pi%PP_COLORS.length];
-    const colors={a:'#1a5c6e',b:'#2d6e3a',c:'#1a5c6e'};
-    const bg=colors[col];
-    thead+=`<th style="width:4px;padding:0;background:#111"></th>`;
-    thead+=`<th style="background:${bg};color:white;font-size:0.68rem;padding:6px 5px;text-align:center;white-space:nowrap">`;
-    thead+=`${getPayPeriodLabel(idx,true)}<br><span style="font-size:0.6rem;opacity:0.85;font-weight:400">Worked</span></th>`;
-    thead+=`<th style="background:${bg};color:white;font-size:0.6rem;padding:6px 4px;text-align:center">Off</th>`;
-    thead+=`<th style="background:${bg};color:white;font-size:0.6rem;padding:6px 5px;text-align:center;white-space:nowrap">Hrs</th>`;
-  });
-  if(activePP==='all'){
-    thead+=`<th style="width:6px;padding:0;background:#0a1020"></th>`;
-    thead+=`<th style="background:#1a2744;color:white;font-size:0.68rem;padding:6px 5px;text-align:center">📆 Full Month<br><span style="font-size:0.6rem;opacity:0.85;font-weight:400">Worked</span></th>`;
-    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 4px;text-align:center">Off</th>`;
-    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 5px;text-align:center">Hrs</th>`;
-    thead+=`<th style="background:#1a2744;color:white;font-size:0.6rem;padding:6px 5px;text-align:center">Progress</th>`;
-  }
-  thead+='</tr>';
-  document.getElementById('hrs-thead').innerHTML=thead;
-
-  // Max hours for bar
-  const maxH=Math.max(...HYGS.map(h=>hrs(monthly[h.name])),1);
-
-  let tbody='';
-  HYGS.forEach(h=>{
-    const mo=monthly[h.name];
-    const moHrs=hrs(mo);
-    const pct=Math.round((moHrs/maxH)*100);
-    const colors={a:'#e6f4f7',b:'#e8f5ea',c:'#e6f4f7'};
-    const colorsAlt={a:'#d4ecf1',b:'#d4eddb',c:'#d4ecf1'};
-    let row=`<tr><td class="t-name" style="white-space:nowrap">${h.name}</td>`;
-    showPeriods.forEach((idx,pi)=>{
-      const col=PP_COLORS[pi%PP_COLORS.length];
-      const p=byPeriod[`${h.name}_${idx}`]||{w:0,o:0,hf:0};
-      const bg=colors[col];
-      row+=`<td style="width:4px;padding:0;background:var(--sand)"></td>`;
-      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#0e5457;font-weight:700;padding:6px 5px">${p.w}</td>`;
-      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#a03020;font-weight:700;padding:6px 4px">${p.o}</td>`;
-      row+=`<td style="background:${bg};text-align:center;white-space:nowrap;color:#0e5457;font-weight:700;padding:6px 5px">${hrs(p)}h</td>`;
-    });
-    if(activePP==='all'){
-      row+=`<td style="width:6px;padding:0;background:#c5c9d4"></td>`;
-      row+=`<td class="t-hrs" style="white-space:nowrap;padding:6px 5px">${mo.w}</td>`;
-      row+=`<td class="t-off" style="white-space:nowrap;padding:6px 4px">${mo.o}</td>`;
-      row+=`<td class="t-hrs" style="white-space:nowrap;padding:6px 5px">${moHrs}h</td>`;
-      row+=`<td style="padding:6px 5px"><div class="bar-bg"><div class="bar-fg" style="width:${pct}%"></div></div></td>`;
-    }
-    row+='</tr>';
-    tbody+=row;
-  });
-  document.getElementById('hrs-body').innerHTML=tbody;
-}
-
-function setPP(idx,btn){
-  activePP=idx==='all'?'all':Number(idx);
-  renderHrs();
-}
-
-function renderRot(){
-  let html='';
-  HYGS.forEach(h=>{
-    const wd=h.days.map(d=>DSHORT[d]).join(', ');
-    const hd=h.halfDays.map(d=>DSHORT[d]).join(', ')||'—';
-    const mThuRot=h.noRot?'Exempt (TH fixed)':h.type==='Full-time'?'Full-timer queue':'Part-timer queue';
-    const friStatus=h.fridayFixed?'<span style="color:#0e5457;font-weight:700">Fixed every Fri</span>':h.friday==='rotate'?'<span style="color:#856404;font-weight:700">Rotates (3 of 6)</span>':'<span style="color:#aaa">—</span>';
-    html+=`<tr><td class="t-name">${h.name}</td><td>${wd}</td><td>${hd}</td><td>${friStatus}</td><td style="color:var(--gray)">${mThuRot}</td></tr>`;
-  });
-  document.getElementById('rot-body').innerHTML=html;
-}
-
-let currentModalDow=0;
-function openModal(key,date,dow){
-  currentModalDow=dow;
-  editKey=key;editTmp=Object.assign({},schedData[key]||{});
-  document.getElementById('modal-title').textContent=`${DNAMES[dow]}, ${MONTHS[curMonth]} ${date}`;
-  renderModalRows();
-  document.getElementById('modal').classList.add('open');
-}
-
-function setDayStatus(status){
-  // Set all hygienists based on day status
-  if(status==='drout'||status==='closed'){
-    HYGS.forEach(h=>{ editTmp[h.name]=h.days.includes(currentModalDow)?'drout':'nowork'; });
-    editTmp['__day__']=status;
+async function selectShowName(item) {
+  const name = item.dataset.name;
+  const wasSelected = item.classList.contains('selected');
+  document.querySelectorAll('.show-name-item').forEach(i => i.classList.remove('selected'));
+  if (!wasSelected) {
+    item.classList.add('selected');
+    await sbSet('show_name_selected', name);
+    document.getElementById('show-name-sync').textContent = `✓ Saved: ${name}`;
   } else {
-    // Restore to normal scheduled defaults
-    editTmp['__day__']='normal';
-    HYGS.forEach(h=>{
-      if(!h.days.includes(currentModalDow)){editTmp[h.name]='nowork';return;}
-      if(h.noRot){editTmp[h.name]='helen';return;}
-      if(h.halfDays.includes(currentModalDow)){editTmp[h.name]='half';return;}
-      editTmp[h.name]='work';
-    });
+    await sbSet('show_name_selected', null);
+    document.getElementById('show-name-sync').textContent = 'Tap to select a favorite';
   }
-  renderModalRows();
 }
 
-function renderModalRows(){
-  const labels={work:'Working',half:'Half day',off:'Day off',nowork:'Not scheduled',helen:'Working (TH)',drout:'Dr out'};
-  const bCls={work:'sw',half:'sh',off:'so',nowork:'sn',helen:'sw',drout:'sn'};
-  const dayMeta=editTmp['__day__']||'normal';
-  let html=`<div class="day-action-row">
-    <button class="day-action-btn ${dayMeta==='normal'?'da-normal':''}" onclick="setDayStatus('normal')">✅ Normal day</button>
-    <button class="day-action-btn ${dayMeta==='drout'?'da-drout':''}" onclick="setDayStatus('drout')">🩺 Dr out</button>
-    <button class="day-action-btn ${dayMeta==='closed'?'da-closed':''}" onclick="setDayStatus('closed')">🚫 Office closed</button>
-  </div>`;
-  if(dayMeta==='drout') html+=`<p style="font-size:12px;color:#777;margin-bottom:10px;">Doctor is out — all staff marked unavailable. Override individually if needed.</p>`;
-  if(dayMeta==='closed') html+=`<p style="font-size:12px;color:#8b2a1c;margin-bottom:10px;">Office is closed — no staff scheduled.</p>`;
-  HYGS.forEach(h=>{
-    const s=editTmp[h.name]||'nowork';
-    html+=`<div class="modal-row"><span class="m-name">${h.name}</span><button class="s-btn ${bCls[s]||'sn'}" onclick="cycleStatus('${h.name}')">${labels[s]||s}</button></div>`;
+// ═══════════════════════════════════════
+// THERAPY — Supabase
+// ═══════════════════════════════════════
+function updateTherapyUI() {
+  const phases = [1,2,3,4];
+  let totalAll = 0, totalDone = 0;
+  phases.forEach(n => {
+    const phase = document.getElementById('tphase' + n);
+    const all = phase.querySelectorAll('.therapy-item').length;
+    const done = phase.querySelectorAll('.therapy-item.done').length;
+    document.getElementById('tcount-' + n).textContent = done + '/' + all;
+    if (done === all && all > 0) phase.classList.add('all-done');
+    else phase.classList.remove('all-done');
+    totalAll += all; totalDone += done;
   });
-  document.getElementById('modal-rows').innerHTML=html;
+  const pct = totalAll ? (totalDone / totalAll * 100) : 0;
+  document.getElementById('therapyProgressFill').style.width = pct + '%';
+  document.getElementById('therapyProgressLabel').textContent = totalDone + ' of ' + totalAll + ' complete';
 }
 
-function cycleStatus(name){
-  const cycle=['work','half','off','nowork'];
-  const cur=editTmp[name]||'nowork';
-  const idx=cycle.indexOf(cur);
-  editTmp[name]=cycle[idx<0?0:(idx+1)%cycle.length];
-  renderModalRows();
+async function saveTherapyProgress() {
+  const items = document.querySelectorAll('.therapy-item');
+  const state = Array.from(items).map(i => i.classList.contains('done'));
+  await sbSet('therapy_progress', state);
+  document.getElementById('therapy-sync').textContent = '✓ Saved to cloud';
+  setTimeout(() => { document.getElementById('therapy-sync').textContent = ''; }, 2000);
 }
 
-function saveModal(){
-  schedData[editKey]=Object.assign({},editTmp);
-  saveMonth(curYear,curMonth);
-  closeModal();
-  renderCal();
-  if(document.getElementById('panel-hrs').classList.contains('active'))renderHrs();
-}
-
-function closeModal(){
-  document.getElementById('modal').classList.remove('open');
-  editKey=null;editTmp={};
-}
-
-async function changeMonth(dir){
-  curMonth+=dir;
-  if(curMonth>11){curMonth=0;curYear++;}
-  if(curMonth<0){curMonth=11;curYear--;}
-  activePP='all';
-  await loadMonth(curYear,curMonth);
-  renderCal();
-  if(document.getElementById('panel-hrs').classList.contains('active'))renderHrs();
-}
-
-function switchTab(name,btn){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('panel-'+name).classList.add('active');
-  btn.classList.add('active');
-  if(name==='hrs')renderHrs();
-  if(name==='rot')renderRot();
-}
-
-document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
-
-function printSchedule(){
-  const prevPP = activePP;
-  activePP = 'all';
-  renderHrs();
-  renderRot();
-  const subtitle = document.getElementById('print-hrs-subtitle');
-  if(subtitle) subtitle.textContent = MONTHS[curMonth]+' '+curYear+' · Full day = 8 hrs · Half day = 6 hrs';
-  const legend = document.getElementById('print-pp-legend');
-  if(legend){
-    const periods = getPayPeriods();
-    const colors = ['#e6f4f7','#e8f5ea','#e6f4f7'];
-    const textColors = ['#1a5c6e','#2d6e3a','#1a5c6e'];
-    let lhtml = '';
-    periods.forEach((idx,pi)=>{
-      const bg=colors[pi%3]; const tc=textColors[pi%3];
-      lhtml+=`<span style="background:${bg};color:${tc};border:1px solid ${tc};border-radius:8px;padding:2px 8px;font-size:8pt;font-weight:700">${getPayPeriodLabel(idx,true)}</span>`;
+async function loadTherapyProgress() {
+  document.getElementById('therapy-sync').textContent = 'Syncing...';
+  const state = await sbGet('therapy_progress');
+  if (state && Array.isArray(state)) {
+    const items = document.querySelectorAll('.therapy-item');
+    items.forEach((item, i) => {
+      if (state[i]) item.classList.add('done');
+      else item.classList.remove('done');
     });
-    lhtml+=`<span style="background:#e8eaf0;color:#1a2744;border:1px solid #888;border-radius:8px;padding:2px 8px;font-size:8pt;font-weight:700">Full month</span>`;
-    legend.innerHTML = lhtml;
   }
-  window.print();
-  activePP = prevPP;
-  renderHrs();
+  updateTherapyUI();
+  document.getElementById('therapy-sync').textContent = state ? '✓ Progress loaded' : 'No saved progress yet';
+  setTimeout(() => { document.getElementById('therapy-sync').textContent = ''; }, 2000);
 }
 
-(async()=>{
-  await loadMonth(curYear,curMonth);
-  renderCal();
-})();
+function toggleTherapy(item) {
+  item.classList.toggle('done');
+  updateTherapyUI();
+  saveTherapyProgress();
+}
+
+async function resetTherapy() {
+  if (confirm('Reset all therapy progress?')) {
+    document.querySelectorAll('.therapy-item').forEach(i => i.classList.remove('done'));
+    updateTherapyUI();
+    await sbSet('therapy_progress', []);
+    document.getElementById('therapy-sync').textContent = 'Progress reset';
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+loadTherapyProgress();
+loadShowName();
+updateTherapyUI();
 </script>
 </body>
 </html>
