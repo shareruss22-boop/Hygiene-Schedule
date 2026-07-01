@@ -101,6 +101,35 @@
   .t-off{color:var(--coral);font-weight:700;}
   .bar-bg{width:60px;background:var(--sand);border-radius:4px;height:7px;display:inline-block;vertical-align:middle;overflow:hidden;}
   .bar-fg{height:100%;background:var(--teal);border-radius:4px;}
+
+  /* Daily breakdown accordion */
+  .daily-section{margin-top:1.5rem;}
+  .daily-section-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--navy);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:2px solid var(--sand);}
+  .daily-accordion{display:flex;flex-direction:column;gap:6px;}
+  .daily-person{border:1px solid var(--sand);border-radius:10px;overflow:hidden;background:var(--white);}
+  .daily-person-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--white);transition:background 0.15s;}
+  .daily-person-header:hover{background:var(--teal-pale);}
+  .daily-person-header.open{background:var(--teal-pale);}
+  .daily-person-name{font-weight:700;font-size:0.9rem;color:var(--navy);}
+  .daily-person-summary{font-size:0.8rem;color:var(--teal);font-weight:700;}
+  .daily-person-arrow{font-size:0.75rem;color:var(--gray);transition:transform 0.2s;}
+  .daily-person-header.open .daily-person-arrow{transform:rotate(180deg);}
+  .daily-person-body{display:none;border-top:1px solid var(--sand);padding:10px 14px;}
+  .daily-person-body.open{display:block;}
+  .daily-day-list{display:flex;flex-direction:column;gap:4px;}
+  .daily-day-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:6px;font-size:0.82rem;}
+  .daily-day-row.work{background:var(--teal-pale);}
+  .daily-day-row.half{background:#dff2f3;border:1px dashed var(--teal-light);}
+  .daily-day-row.off{background:var(--coral-pale);}
+  .daily-day-row.helen{background:var(--gold-pale);}
+  .daily-day-label{color:var(--navy);font-weight:500;}
+  .daily-day-hrs{font-weight:700;font-family:'Nunito',sans-serif;}
+  .daily-day-row.work .daily-day-hrs{color:#0e5457;}
+  .daily-day-row.half .daily-day-hrs{color:#1a5e62;}
+  .daily-day-row.off .daily-day-hrs{color:var(--coral);}
+  .daily-day-row.helen .daily-day-hrs{color:#7a5c08;}
+  .daily-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:2px solid var(--sand);font-weight:700;font-size:0.88rem;}
+  .daily-total-hrs{color:var(--teal);font-size:1rem;font-weight:700;}
   .period-label{font-size:11px;color:var(--gray);font-weight:400;}
 
   /* section headers in table */
@@ -257,6 +286,12 @@
     </table>
   </div>
   <p style="font-size:11px;color:var(--gray);margin-top:8px;">Full day = 8 hrs &nbsp;·&nbsp; Half day = 6 hrs &nbsp;·&nbsp; Pay periods: May 27–Jun 9, Jun 10–Jun 23, every 2 weeks thereafter. May days prior to Jun 1 are not tracked.</p>
+
+  <!-- Daily breakdown accordion -->
+  <div class="daily-section">
+    <div class="daily-section-title">📅 Daily Hours Breakdown — click a name to expand</div>
+    <div class="daily-accordion" id="daily-accordion"></div>
+  </div>
 </div>
 
 <!-- ROTATION -->
@@ -636,6 +671,61 @@ function renderHrs(){
     tbody+=row;
   });
   document.getElementById('hrs-body').innerHTML=tbody;
+  renderDailyBreakdown(weeks);
+}
+
+function renderDailyBreakdown(weeks){
+  const DNAMES=['Mon','Tue','Wed','Thu','Fri'];
+  const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let html='';
+  HYGS.forEach(h=>{
+    let totalHrs=0;
+    let daysHtml='';
+    weeks.forEach(week=>{
+      week.forEach((date,dow)=>{
+        if(!date) return;
+        const assign=schedData[dayKey(curYear,curMonth,date)]||{};
+        const s=assign[h.name];
+        if(!s||s==='nowork'||s==='drout') return;
+        const isScheduled=h.days.includes(dow);
+        if(!isScheduled) return;
+        let rowCls='',hrsVal=0,hrsLabel='';
+        if(s==='work'){rowCls='work';hrsVal=8;hrsLabel='8 hrs';}
+        else if(s==='half'){rowCls='half';hrsVal=6;hrsLabel='6 hrs ½';}
+        else if(s==='helen'){rowCls='helen';hrsVal=8;hrsLabel='8 hrs';}
+        else if(s==='off'){rowCls='off';hrsVal=0;hrsLabel='Off';}
+        else return;
+        totalHrs+=hrsVal;
+        daysHtml+=`<div class="daily-day-row ${rowCls}">
+          <span class="daily-day-label">${DNAMES[dow]} ${MONTHS_SHORT[curMonth]} ${date}</span>
+          <span class="daily-day-hrs">${hrsLabel}</span>
+        </div>`;
+      });
+    });
+    html+=`<div class="daily-person">
+      <div class="daily-person-header" onclick="toggleDaily(this)">
+        <span class="daily-person-name">${h.name}</span>
+        <span style="display:flex;align-items:center;gap:10px">
+          <span class="daily-person-summary">${totalHrs} hrs total</span>
+          <span class="daily-person-arrow">▼</span>
+        </span>
+      </div>
+      <div class="daily-person-body">
+        <div class="daily-day-list">${daysHtml}</div>
+        <div class="daily-total-row">
+          <span>Total hours this month</span>
+          <span class="daily-total-hrs">${totalHrs} hrs</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('daily-accordion').innerHTML=html;
+}
+
+function toggleDaily(header){
+  header.classList.toggle('open');
+  const body=header.nextElementSibling;
+  body.classList.toggle('open');
 }
 
 function setPP(idx,btn){
