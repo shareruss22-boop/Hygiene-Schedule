@@ -462,13 +462,13 @@ function getWeeks(y,m){
   let sd=first.getDay();if(sd===0)sd=7;
   const fm=new Date(y,m,1-(sd-1));
   const weeks=[];let cur=new Date(fm);
-  while(true){
+  let seenMonth=false;
+  for(let safety=0;safety<10;safety++){
     const wk=[];let any=false;
     for(let d=0;d<5;d++){const dt=new Date(cur);dt.setDate(cur.getDate()+d);if(dt.getMonth()===m){wk.push(dt.getDate());any=true;}else wk.push(null);}
-    if(!any)break;
-    weeks.push(wk);
+    if(any){seenMonth=true;weeks.push(wk);}
+    else if(seenMonth){break;}
     cur.setDate(cur.getDate()+7);
-    if(cur.getMonth()>m&&cur.getFullYear()>=y)break;
   }
   return weeks;
 }
