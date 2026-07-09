@@ -330,26 +330,58 @@
 // ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 const SUPA_URL = 'https://kfxqqjydkaykebbwlbbh.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeHFxanlka2F5a2ViYndsYmJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2Nzk3NDEsImV4cCI6MjA5NDI1NTc0MX0.IHYVCoIUfEZ9Sj9b3E7u57ZBbnvy4cVBUjDRPW2UvOo';
+const SUPA_PUB_KEY = 'sb_publishable_roBhQRgwLnnr-n9x2hZpbw_S9JJ_mI3';
 
 async function supaGet(id) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/schedule?id=eq.${encodeURIComponent(id)}&select=data`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  const rows = await res.json();
-  return rows && rows.length > 0 ? JSON.parse(rows[0].data) : null;
+  // Try anon key first, then publishable key
+  for(const key of [SUPA_KEY, SUPA_PUB_KEY]){
+    try{
+      const res = await fetch(`${SUPA_URL}/rest/v1/schedule?id=eq.${encodeURIComponent(id)}&select=data`, {
+        headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+      });
+      if(res.ok){
+        const rows = await res.json();
+        return rows && rows.length > 0 ? JSON.parse(rows[0].data) : null;
+      }
+    }catch(e){}
+  }
+  return null;
 }
 
 async function supaSet(id, data) {
-  await fetch(`${SUPA_URL}/rest/v1/schedule`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates'
-    },
-    body: JSON.stringify({ id, data: JSON.stringify(data) })
-  });
+  for(const key of [SUPA_KEY, SUPA_PUB_KEY]){
+    try{
+      const res = await fetch(`${SUPA_URL}/rest/v1/schedule`, {
+        method: 'POST',
+        headers: {
+          'apikey': key,
+          'Authorization': 'Bearer ' + key,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({ id, data: JSON.stringify(data) })
+      });
+      if(res.ok || res.status===201||res.status===200||res.status===204){
+        showSaveToast('✓ Saved to cloud');
+        return;
+      }
+    }catch(e){}
+  }
+  // Both failed - saved to localStorage only
+  showSaveToast('⚠ Saved locally only');
+}
+
+function showSaveToast(msg){
+  let t=document.getElementById('save-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='save-toast';
+    t.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--navy);color:white;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:Nunito,sans-serif;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',2000);
 }
 
 const HYGS=[
@@ -444,7 +476,7 @@ function getWeeks(y,m){
 function dayKey(y,m,date){return `${y}-${m}-${date}`;}
 
 function buildDefault(y,m){
-  const drOut=(y===2026&&m===5)?new Set([15,25,29]):new Set();
+  const drOut=new Set(); // Dr-out days are set manually by clicking a day
   const ftQ=loadQ(ftqKey(),FT_NAMES);
   const ptQ=loadQ(ptqKey(),PT_NAMES);
   const friQ=loadQ(friqKey(),[...FRI_ROTATE]);
